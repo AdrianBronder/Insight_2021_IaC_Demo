@@ -1,0 +1,19 @@
+belgium:
+  short: bel
+  brussels:
+    short: bru
+    resources:
+      - cluster: r2d2.slash.local
+        vserver: svm1
+  antwerp:
+    short: ant
+    resources:
+      - cluster: r2d2.slash.local
+        vserver: svm2
+netherlands:
+  short: dut
+  amsterdam:
+    short: ams
+    resources:
+      - cluster: r2d2.slash.local
+        vserver: svm3
