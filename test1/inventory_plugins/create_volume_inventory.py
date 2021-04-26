@@ -1,8 +1,10 @@
+#!/path/to/python
+
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 DOCUMENTATION = """
-        name: create_volume_inventory
+        name: import_constants
         plugin_type: inventory
         author: Mirko Van Colen
         version_added: "0.1"
@@ -13,7 +15,7 @@ DOCUMENTATION = """
           plugin:
               description: Name of the plugin
               required: true
-              choices: ['create_volume_inventory']
+              choices: ['import_constants']
         notes:
           - notes
 """
@@ -35,18 +37,48 @@ class InventoryModule(BaseInventoryPlugin):
             display.display("import yaml file : " + path)
             return yaml.load(file, Loader=yaml.FullLoader)
 
+    # Example inventory for testing.
+    def example_inventory(self):
+        return {
+            'python_hosts': {
+                'hosts': ['10.220.21.24', '10.220.21.27'],
+                'vars': {
+                    'ansible_ssh_user': 'projectuser',
+                }
+            },
+            '_meta': {
+                'hostvars': {
+                    '10.220.21.24': {
+                        'host_specific_var': 'testhost'
+                    },
+                    '10.220.21.27': {
+                        'host_specific_var': 'towerhost'
+                    }
+                }
+            }
+        }
+
+    # Empty inventory for testing.
+    def empty_inventory(self):
+        return {'_meta': {'hostvars': {}}}
+
     def _parse_extra_vars(self):
 
         # use argument parser to parse the playbook arguments
         parser = argparse.ArgumentParser()
         parser.add_argument('-i','--inventory',  required=False, dest="inventory_script")
-        parser.add_argument('-e','--extra_vars', required=False, dest="extra_vars")
-        parser.add_argument('--list', action = 'store_true', required=False, dest="list_inventory")
-        parser.add_argument('--host', action = 'store', required=False, dest="ansible_host")
+        parser.add_argument('-e','--extra_vars', required=False, dest="extra_vars", default="{}")
+        parser.add_argument('--list', action='store_true', required=False, dest="list")
+        parser.add_argument('--host', action='store', required=False, dest="host")
         parser.add_argument('args', nargs=argparse.REMAINDER)
         self.args, self.unknown_args = parser.parse_known_args()
 
-        # parsing extra vars
+        if(self.args.list):
+            display.display("Running from ansible-inventory, asking for list...")
+
+        if(self.args.host):
+            display.display("Running from ansible-inventory, asking for host...")
+
         display.display("extravars argument = " + self.args.extra_vars)
 
         # if json format
@@ -61,9 +93,6 @@ class InventoryModule(BaseInventoryPlugin):
             self.extra_vars = self._import_yaml(yaml_file)
 
     def _populate(self):
-        '''Return the hosts and groups'''
-        display.display("Running dynamic inventory")
-        display.display("input = " + str(self.extra_vars))
 
         # create a new inventory object
         self.inventory.add_host(host='localhost')
@@ -72,20 +101,37 @@ class InventoryModule(BaseInventoryPlugin):
         ############################################
         # Convert functional data to technical data
         ############################################
+        cluster = ""
+        vserver = ""
+        volume_name = ""
+        size_mb = 0
+        if(self.args.list or self.args.host):
+            display.display("Returning sample values")
+            cluster = "samplecluster"
+            vserver = "samplevserver"
+            volume = "samplevolume"
+            size_mb = 50
+        else:
+            try:
+                '''Return the hosts and groups'''
+                display.display("Running dynamic inventory")
+                display.display("input = " + str(self.extra_vars))
+                mapping = self._import_yaml("mapping.yaml")
+                display.display(str(mapping))
+                country = mapping[self.extra_vars["country"]]
+                city    = country[self.extra_vars["city"]]
+                cluster = city["resources"][0]["cluster"]
+                vserver = city["resources"][0]["vserver"]
+                volume_name = country["short"] + "_" + city["short"] + "_" + self.extra_vars["vol_name"]
+                size_mb = self.extra_vars["size_mb"]
 
-        mapping = self._import_yaml("mapping.yaml")
-        display.display(str(mapping))
-        country = mapping[self.extra_vars["country"]]
-        city    = country[self.extra_vars["city"]]
-        cluster = city["resources"][0]["cluster"]
-        vserver = city["resources"][0]["vserver"]
-        volume_name = country["short"] + "_" + city["short"] + "_" + self.extra_vars["vol_name"]
-
+            except:
+                display.display("Error searching for values, returning empty values")
 
         self.inventory.set_variable('localhost','cluster',cluster)
         self.inventory.set_variable('localhost','vserver',vserver)
         self.inventory.set_variable('localhost','volume_name',volume_name)
-        self.inventory.set_variable('localhost','size_mb',self.extra_vars["size_mb"])
+        self.inventory.set_variable('localhost','size_mb',size_mb)
 
     def parse(self, inventory, loader, path, cache):
        '''Return dynamic inventory from source '''
@@ -96,3 +142,9 @@ class InventoryModule(BaseInventoryPlugin):
        self._parse_extra_vars()
        self._populate()
 
+    def verify_file(self, path):
+       return True
+
+
+if __name__ == '__main__':
+    display.display("This is an inventory plugin.  You can't run it, ansible-inventory or ansible-playbook.")
