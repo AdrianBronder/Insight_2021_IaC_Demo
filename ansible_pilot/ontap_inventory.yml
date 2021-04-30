@@ -1,7 +1,7 @@
 [ontap]
 cluster1 ontap_hostname=cluster1.demo.netapp.com
 cluster2 ontap_hostname=cluster2.demo.netapp.com
-r2d2 ontap_hostname=r2d2.slash.local ontap_username=admin ontap_password=Netapp12
+r2d2 ontap_hostname=r2d2.slash.local
 
 [ontap:vars]
 ansible_connection=local
