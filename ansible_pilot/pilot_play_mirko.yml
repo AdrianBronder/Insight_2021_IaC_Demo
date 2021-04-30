@@ -1,0 +1,6 @@
+---
+- hosts:        r2d2
+  gather_facts: false
+
+  roles:
+  - role: ontap_svm

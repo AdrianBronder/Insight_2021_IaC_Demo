@@ -1,0 +1,51 @@
+name:                     "r2d2"
+dns_domains:
+  -                       "slash.local"
+name_servers:
+  -                       "172.16.0.32"
+timezone:
+  name:                   "Europe/Brussels"
+ntp_servers:
+  -
+nodes:
+  -
+svms:
+  pri_svm_01:
+    name:                 "pri_svm_01"
+    language:             "c.UTF-8"
+    comment:              "this is my pilot too"
+    ipspace:
+      name:               "Default"
+    dns:
+      domains:
+        -                 "slash.local"
+      servers:
+        -                 "172.16.0.32"
+    nfs:
+      enabled:            true
+    cifs:
+      name:               "PRI_SVM_01"
+      enabled:            true
+      ad_domain:
+        fqdn:             "slash.local"
+    snapshot_policy:
+      name:               "none"
+    lifs:
+      pri_svm_01_mgmt01:
+        name:             "pri_svm_01_mgmt01"
+        svm:
+          name:           "pri_svm_01"
+        ip:
+          address:        "172.16.14.1"
+          netmask:        "255.255.0.0"
+          family:         "ipv4"
+        service_policy:
+          name:           "default-management"
+        location:
+          home_node:
+            name:         "r2d2-01"
+          home_port:
+            name:         "e0c-16"
+          failover:       "broadcast_domain_only"
+          auto_revert:    true
+    volumes:
