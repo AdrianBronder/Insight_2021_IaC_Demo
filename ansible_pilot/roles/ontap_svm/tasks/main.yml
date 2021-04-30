@@ -33,7 +33,7 @@
     vserver:                      "{{ svms[svm_name].lifs[item].svm.name }}"
     address:                      "{{ svms[svm_name].lifs[item].ip.address }}"
     netmask:                      "{{ svms[svm_name].lifs[item].ip.netmask }}"
-    service_policy:               "{{ svms[svm_name].lifs[item].service_policy.name }}"
+    protocols:                    "{{ svms[svm_name].lifs[item].protocols }}"
     home_node:                    "{{ svms[svm_name].lifs[item].location.home_node.name }}"
     home_port:                    "{{ svms[svm_name].lifs[item].location.home_port.name }}"
 # FIXME - This one is ugly, but "role" must be provided as long as we have to use ZAPI here

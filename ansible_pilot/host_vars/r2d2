@@ -39,8 +39,7 @@ svms:
           address:        "172.16.14.1"
           netmask:        "255.255.0.0"
           family:         "ipv4"
-        service_policy:
-          name:           "default-management"
+        protocols:        "none"
         location:
           home_node:
             name:         "r2d2-01"
