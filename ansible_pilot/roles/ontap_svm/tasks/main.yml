@@ -57,7 +57,7 @@
   tags:
     - create_ontap_svm
     - modify_ontap_svm
-  when: svms['svm_template'].dns.domains!="" && svms['svm_template'].dns.servers!=""
+  when: (svms['svm_template'].dns.domains!="") and (svms['svm_template'].dns.servers!="")
 
 - name: Delete SVM
   na_ontap_svm:
