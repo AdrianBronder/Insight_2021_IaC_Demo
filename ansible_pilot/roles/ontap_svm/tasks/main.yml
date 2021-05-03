@@ -43,6 +43,7 @@
     "{{ svms['svm_template'].lifs | list }}"
   tags:
     - create_ontap_svm
+  when: {{ svms['svm_template'].lifs[item].name!=""
 
 - name: Configure DNS
   na_ontap_dns:
