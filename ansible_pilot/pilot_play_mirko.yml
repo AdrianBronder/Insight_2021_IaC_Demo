@@ -1,5 +1,5 @@
 ---
-- hosts:        r2d2
+- hosts:        "{{ cluster_name }}"
   gather_facts: false
 
   roles:
