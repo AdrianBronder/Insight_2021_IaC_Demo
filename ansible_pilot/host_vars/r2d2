@@ -72,7 +72,7 @@ svms:
         mgmt_lif:
           name:             ""
           svm:
-            name:           "{{ svm_name }}"
+            name:           ""
           ip:
             address:        ""
             netmask:        "255.255.0.0"
