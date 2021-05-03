@@ -12,15 +12,17 @@
       use_rest:                   Never
   tags:
     - always
-
+- name: Merge template with extraVars
+  set_fact:
+    new_svms: {{ svms | combine(svm, recursive=True) }}
 - name: Create SVM
   na_ontap_svm:
     state:                        present
-    name:                         "{{ svms['svm_template'].name }}"
-    language:                     "{{ svms['svm_template'].language }}"
-    comment:                      "{{ svms['svm_template'].comment }}"
-    ipspace:                      "{{ svms['svm_template'].ipspace.name }}"
-    snapshot_policy:              "{{ svms['svm_template'].snapshot_policy.name }}"
+    name:                         "{{ new_svms['svm_template'].name }}"
+    language:                     "{{ new_svms['svm_template'].language }}"
+    comment:                      "{{ new_svms['svm_template'].comment }}"
+    ipspace:                      "{{ new_svms['svm_template'].ipspace.name }}"
+    snapshot_policy:              "{{ new_svms['svm_template'].snapshot_policy.name }}"
     <<: *ontap_login
   tags:
     - create_ontap_svm
@@ -29,38 +31,38 @@
 - name: Create LIFs
   na_ontap_interface:
     state:                        present
-    interface_name:               "{{ svms['svm_template'].lifs[item].name }}"
-    vserver:                      "{{ svms['svm_template'].lifs[item].svm.name }}"
-    address:                      "{{ svms['svm_template'].lifs[item].ip.address }}"
-    netmask:                      "{{ svms['svm_template'].lifs[item].ip.netmask }}"
-    protocols:                    "{{ svms['svm_template'].lifs[item].protocols }}"
-    home_node:                    "{{ svms['svm_template'].lifs[item].location.home_node.name }}"
-    home_port:                    "{{ svms['svm_template'].lifs[item].location.home_port.name }}"
+    interface_name:               "{{ new_svms['svm_template'].lifs[item].name }}"
+    vserver:                      "{{ new_svms['svm_template'].lifs[item].svm.name }}"
+    address:                      "{{ new_svms['svm_template'].lifs[item].ip.address }}"
+    netmask:                      "{{ new_svms['svm_template'].lifs[item].ip.netmask }}"
+    protocols:                    "{{ new_svms['svm_template'].lifs[item].protocols }}"
+    home_node:                    "{{ new_svms['svm_template'].lifs[item].location.home_node.name }}"
+    home_port:                    "{{ new_svms['svm_template'].lifs[item].location.home_port.name }}"
 # FIXME - This one is ugly, but "role" must be provided as long as we have to use ZAPI here
     role:                         "data"
     <<: *ontap_login
   loop:
-    "{{ svms['svm_template'].lifs | list }}"
+    "{{ new_svms['svm_template'].lifs | list }}"
   tags:
     - create_ontap_svm
-  when: svms['svm_template'].lifs[item].name!="" 
+  when: new_svms['svm_template'].lifs[item].name!=""
 
 - name: Configure DNS
   na_ontap_dns:
     state:                        present
-    vserver:                      "{{ svm_name }}"
-    domains:                      "{{ svms['svm_template'].dns.domains }}"
-    nameservers:                  "{{ svms['svm_template'].dns.servers }}"
+    vserver:                      "{{ new_svms['svm_template'].name }}"
+    domains:                      "{{ new_svms['svm_template'].dns.domains }}"
+    nameservers:                  "{{ new_svms['svm_template'].dns.servers }}"
     <<: *ontap_login
   tags:
     - create_ontap_svm
     - modify_ontap_svm
-  when: svms['svm_template'].dns.domains!="" && svms['svm_template'].dns.servers!=""
+  when: new_svms['svm_template'].dns.domains!="" && new_svms['svm_template'].dns.servers!=""
 
 - name: Delete SVM
   na_ontap_svm:
     state:                        absent
-    name:                         "{{ svm_name }}"
+    name:                         "{{ new_svms['svm_template'].name }}"
     <<: *ontap_login
   tags:
     - delete_ontap_svm
