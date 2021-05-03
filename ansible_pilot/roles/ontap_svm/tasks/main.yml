@@ -53,6 +53,7 @@
     vserver:                      "{{ svms['svm_template'].name }}"
     domains:                      "{{ svms['svm_template'].dns.domains }}"
     nameservers:                  "{{ svms['svm_template'].dns.servers }}"
+    skip_validation: yes
     <<: *ontap_login
   tags:
     - create_ontap_svm
