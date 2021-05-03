@@ -49,9 +49,9 @@ svms:
           auto_revert:    true
     volumes:
   svm_template:
-      name:                 ""
+      name:                 "svm_test"
       language:             "c.UTF-8"
-      comment:              ""
+      comment:              "test"
       ipspace:
         name:               "Default"
       dns:
