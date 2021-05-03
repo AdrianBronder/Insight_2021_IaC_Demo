@@ -14,7 +14,7 @@
     - always
 - name: Merge template with extraVars
   set_fact:
-    new_svms: {{ svms | combine(svm, recursive=True) }}
+    new_svms: "{{ svms | combine(svm, recursive=True) }}"
 - name: Create SVM
   na_ontap_svm:
     state:                        present
