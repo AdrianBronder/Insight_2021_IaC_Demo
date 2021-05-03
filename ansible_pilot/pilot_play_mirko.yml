@@ -1,5 +1,5 @@
 ---
-- hosts: "{{ cluster }}"
+- hosts: "{{ cluster_name }}"
   gather_facts: false
 
   roles:
