@@ -48,3 +48,41 @@ svms:
           failover:       "broadcast_domain_only"
           auto_revert:    true
     volumes:
+  svm_template:
+      name:                 ""
+      language:             "c.UTF-8"
+      comment:              ""
+      ipspace:
+        name:               "Default"
+      dns:
+        domains:
+          -                 "slash.local"
+        servers:
+          -                 "172.16.0.32"
+      nfs:
+        enabled:            false
+      cifs:
+        name:               ""
+        enabled:            false
+        ad_domain:
+          fqdn:             "slash.local"
+      snapshot_policy:
+        name:               "none"
+      lifs:
+        mgmt_lif:
+          name:             ""
+          svm:
+            name:           "{{ svm_name }}"
+          ip:
+            address:        ""
+            netmask:        "255.255.0.0"
+            family:         "ipv4"
+          protocols:        "none"
+          location:
+            home_node:
+              name:         "r2d2-01"
+            home_port:
+              name:         "e0c-16"
+            failover:       "broadcast_domain_only"
+            auto_revert:    true
+      volumes:
