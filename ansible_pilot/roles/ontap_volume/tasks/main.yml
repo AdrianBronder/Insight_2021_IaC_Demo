@@ -1,0 +1,52 @@
+---
+# tasks file for ontap_svm
+
+- name: Set Connection Details
+  ansible.builtin.set_fact:
+    ontap_login: &ontap_login
+      hostname:                   "{{ ontap_hostname }}"
+      username:                   "{{ ontap_username }}"
+      password:                   "{{ ontap_password }}"
+      https:                      true
+      validate_certs:             false
+      use_rest:                   Never
+  tags:
+    - always
+- name: Merge template with extraVars
+  set_fact:
+    volumes: "{{ volumes | combine(volume, recursive=True) }}"
+- name: Create Volume
+  na_ontap_volume:
+    state: present
+    name: "{{ volume_name }}"
+    vserver: "{{ vserver }}"
+    aggregate_name: "{{ aggr }}"
+    size: "{{ size_mb }}"
+    size_unit: "mb"
+    policy: "default"
+    junction_path: "/{{ volume_name }}"
+    hostname: "{{ cluster }}"
+    username: "{{ username }}"
+    password: "{{ password }}"
+    https: true
+    validate_certs: false
+- name: Create Volume
+  na_ontap_svm:
+    state:                        present
+    name:                         "{{ name }}"
+    language:                     "{{ language }}"
+    comment:                      "{{ comment }}"
+    ipspace:                      "{{ ipspace.name }}"
+    snapshot_policy:              "{{ snapshot_policy.name }}"
+    <<: *ontap_login
+  tags:
+    - create_ontap_svm
+    - modify_ontap_svm
+
+- name: Delete Volume
+  na_ontap_svm:
+    state:                        absent
+    name:                         "{{ name }}"
+    <<: *ontap_login
+  tags:
+    - delete_ontap_svm

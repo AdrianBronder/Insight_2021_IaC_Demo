@@ -1,5 +1,7 @@
 ---
 # tasks file for ontap_svm
+- name: Prevent run without tags
+  fail: msg="You must run this role [ontap_svm] with tags!"
 
 - name: Set Connection Details
   ansible.builtin.set_fact:
@@ -9,20 +11,41 @@
       password:                   "{{ ontap_password }}"
       https:                      true
       validate_certs:             false
-      use_rest:                   Never
+      use_rest:                   never
   tags:
     - always
-- name: Merge template with extraVars
-  set_fact:
-    svms: "{{ svms | combine(svm, recursive=True) }}"
+  no_log: true
+
+- name: Source Inventory Information
+  block:
+    - name: Print SVMs
+      ansible.builtin.debug:
+        msg: "{{ svms }}"
+    - name: Find SVM
+      ansible.builtin.set_fact:
+        svm: "{{ item }}"
+      loop:
+        "{{ svms | list }}"
+      when:
+        - item.name==svm_name
+    - name: Include HostVars
+      ansible.builtin.set_fact:
+        "{{ item }}": "{{ svm[item] }}"
+      loop:
+        "{{ svm | list }}"
+      when:
+        - svm[item]
+  tags:
+    - always
+
 - name: Create SVM
   na_ontap_svm:
     state:                        present
-    name:                         "{{ svms['svm_template'].name }}"
-    language:                     "{{ svms['svm_template'].language }}"
-    comment:                      "{{ svms['svm_template'].comment }}"
-    ipspace:                      "{{ svms['svm_template'].ipspace.name }}"
-    snapshot_policy:              "{{ svms['svm_template'].snapshot_policy.name }}"
+    name:                         "{{ name }}"
+    language:                     "{{ language }}"
+    comment:                      "{{ comment }}"
+    ipspace:                      "{{ ipspace.name }}"
+    snapshot_policy:              "{{ snapshot_policy.name }}"
     <<: *ontap_login
   tags:
     - create_ontap_svm
@@ -31,39 +54,40 @@
 - name: Create LIFs
   na_ontap_interface:
     state:                        present
-    interface_name:               "{{ svms['svm_template'].lifs[item].name }}"
-    vserver:                      "{{ svms['svm_template'].lifs[item].svm.name }}"
-    address:                      "{{ svms['svm_template'].lifs[item].ip.address }}"
-    netmask:                      "{{ svms['svm_template'].lifs[item].ip.netmask }}"
-    protocols:                    "{{ svms['svm_template'].lifs[item].protocols }}"
-    home_node:                    "{{ svms['svm_template'].lifs[item].location.home_node.name }}"
-    home_port:                    "{{ svms['svm_template'].lifs[item].location.home_port.name }}"
+    interface_name:               "{{ item.name }}"
+    vserver:                      "{{ name }}"
+    address:                      "{{ item.ip.address }}"
+    netmask:                      "{{ item.ip.netmask }}"
+    service_policy:               "{{ item.service_policy.name }}"
+    home_node:                    "{{ item.location.home_node.name }}"
+    home_port:                    "{{ item.location.home_port.name }}"
 # FIXME - This one is ugly, but "role" must be provided as long as we have to use ZAPI here
     role:                         "data"
     <<: *ontap_login
   loop:
-    "{{ svms['svm_template'].lifs | list }}"
+    "{{ ip_interfaces | list }}"
   tags:
     - create_ontap_svm
-  when: svms['svm_template'].lifs[item].name!=""
+  when: item.name!=""
 
 - name: Configure DNS
   na_ontap_dns:
     state:                        present
-    vserver:                      "{{ svms['svm_template'].name }}"
-    domains:                      "{{ svms['svm_template'].dns.domains }}"
-    nameservers:                  "{{ svms['svm_template'].dns.servers }}"
+    vserver:                      "{{ name }}"
+    domains:                      "{{ dns.domains }}"
+    nameservers:                  "{{ dns.servers }}"
     skip_validation: yes
     <<: *ontap_login
   tags:
     - create_ontap_svm
     - modify_ontap_svm
-  when: (svms['svm_template'].dns.domains[0]!="") and (svms['svm_template'].dns.servers[0]!="")
+  when: (dns.domains[0]!="") and (dns.servers[0]!="")
 
 - name: Delete SVM
   na_ontap_svm:
     state:                        absent
-    name:                         "{{ svms['svm_template'].name }}"
+    name:                         "{{ name }}"
     <<: *ontap_login
   tags:
+    - never
     - delete_ontap_svm

@@ -2,5 +2,13 @@
 - hosts: "{{ cluster_name }}"
   gather_facts: false
 
-  roles:
-  - role: ontap_svm
+  tasks:
+  - name: Include svm role
+    include_role:
+      name: ontap_svm
+
+    tags: always
+  - name: Print name after role
+    ansible.builtin.debug:
+      msg: "hoho : {{ name }}"
+    tags: always

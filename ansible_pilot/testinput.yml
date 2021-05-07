@@ -1,0 +1,5 @@
+---
+cluster_name: 'r2d2'
+svm_name: 'pri_svm_01'
+ontap_username: 'admin'
+ontap_password: 'Netapp12'

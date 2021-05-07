@@ -1,88 +1,111 @@
-name:                     "r2d2"
-dns_domains:
-  -                       "slash.local"
-name_servers:
-  -                       "172.16.0.32"
-timezone:
-  name:                   "Europe/Brussels"
-ntp_servers:
-  -
-nodes:
-  -
+
 svms:
-  pri_svm_01:
-    name:                 "pri_svm_01"
-    language:             "c.UTF-8"
-    comment:              "this is my pilot too"
-    ipspace:
-      name:               "Default"
-    dns:
-      domains:
-        -                 "slash.local"
-      servers:
-        -                 "172.16.0.32"
-    nfs:
-      enabled:            true
-    cifs:
-      name:               "PRI_SVM_01"
-      enabled:            true
-      ad_domain:
-        fqdn:             "slash.local"
-    snapshot_policy:
-      name:               "none"
-    lifs:
-      pri_svm_01_mgmt01:
-        name:             "pri_svm_01_mgmt01"
-        svm:
-          name:           "pri_svm_01"
-        ip:
-          address:        "172.16.14.1"
-          netmask:        "255.255.0.0"
-          family:         "ipv4"
-        protocols:        "none"
-        location:
-          home_node:
-            name:         "r2d2-01"
-          home_port:
-            name:         "e0c-16"
-          failover:       "broadcast_domain_only"
-          auto_revert:    true
-    volumes:
-  svm_template:
-      name:                 "svm_test"
-      language:             "c.UTF-8"
-      comment:              "test"
+- name:                     "pri_svm_01"
+  comment:                  "SVM config from host_vars"
+  ipspace:
+    name:                   "Default"
+    uuid:
+  language:                 "c.UTF-8"
+  aggregates:
+    - name:
+      uuid:
+  dns:
+    domains:
+      -                     "slash.local"
+    servers:
+      -                     "172.16.0.32"
+  nfs:
+    enabled:                true
+  cifs:
+    name:                   "PRI_SVM_01"
+    ad_domain:
+      organizational_unit:
+      fqdn:                 "demo.netapp.com"
+      password:
+      user:
+    enabled:                true
+  ip_interfaces:
+    - location:
+        auto_revert:        true
+        home_node:
+          name:             "r2d2-01"
+          uuid:
+        failover:           "broadcast_domain_only"
+        home_port:
+          name:             "e0c-16"
+          uuid:
+          node:
+            name:           "r2d2-01"
+        broadcast_domain:
+          name:
+          uuid:
+      ip:
+        netmask:            "255.255.0.0"
+        address:            "172.16.5.89"
+      name:                 "pri_svm_01_mgmt01"
       ipspace:
         name:               "Default"
-      dns:
-        domains:
-          -                 "slash.local"
-        servers:
-          -                 "172.16.0.32"
-      nfs:
-        enabled:            false
-      cifs:
-        name:               ""
-        enabled:            false
-        ad_domain:
-          fqdn:             "slash.local"
-      snapshot_policy:
-        name:               "none"
-      lifs:
-        mgmt_lif:
-          name:             ""
-          svm:
-            name:           ""
-          ip:
-            address:        ""
-            netmask:        "255.255.0.0"
-            family:         "ipv4"
-          protocols:        "none"
-          location:
-            home_node:
-              name:         "r2d2-01"
-            home_port:
-              name:         "e0c-16"
-            failover:       "broadcast_domain_only"
-            auto_revert:    true
-      volumes:
+        uuid:
+      vip:
+      svm:
+        name:
+        uuid:
+      service_policy:
+        name:               "default-management"
+        uuid:
+      enabled:              true
+      scope:
+  routes:
+    - gateway:              "172.16.0.1"
+      destination:
+        netmask:            "32"
+        address:            "0.0.0.0"
+  fc_interfaces:
+    - data_protocol:
+      location:
+        port:
+          name:
+          uuid:
+          node:
+            name:
+      name:
+  subtype:
+  nis:
+    domain:
+    servers: []
+    enabled:
+  snapshot_policy:
+    name:                  "none"
+    uuid:
+  s3:
+    is_http_enabled:
+    certificate:
+      name:
+      uuid:
+    name:
+    port:
+    secure_port:
+    enabled:
+    is_https_enabled:
+  iscsi:
+    enabled:
+  fcp:
+    enabled:
+  ldap:
+    base_dn:
+    servers: []
+    bind_dn:
+    ad_domain:
+    enabled:
+  nvme:
+    enabled:
+  nsswitch:
+    passwd: []
+    hosts: []
+    netgroup: []
+    group: []
+    namemap: []
+  volume_efficiency_policy:
+    name:
+    uuid:
+  snapmirror: {}
