@@ -3,6 +3,11 @@
 - name: Prevent run without tags
   fail: msg="You must run this role [ontap_svm] with tags!"
 
+- name: Check __svm_name__ or __input__ variables
+  fail: msg="You must pass the '__svm_name__' or '__input__' variable"
+  when: __svm_name__ is undefined and __input__ is undefined
+  tags: always
+
 - name: Set Connection Details
   ansible.builtin.set_fact:
     ontap_login: &ontap_login
@@ -21,31 +26,48 @@
     - name: Print SVMs
       ansible.builtin.debug:
         msg: "{{ svms }}"
+    - name: Searching SVM
+      ansible.builtin.debug:
+        msg: "{{ __svm_name__ }}"
     - name: Find SVM
       ansible.builtin.set_fact:
-        svm: "{{ item }}"
+        __new_obj_svm__: "{{ item }}"
       loop:
         "{{ svms | list }}"
       when:
-        - item.name==svm_name
-    - name: Include HostVars
+        - item.name==__svm_name__
+    - name: Print found SVM
+      ansible.builtin.debug:
+        msg: "{{ __new_obj_svm__ }}"
+
+  when: __input__ is undefined
+  tags: always
+
+- name: Template Information
+  block:
+    - name: Print passed input
+      ansible.builtin.debug:
+        msg: "{{ __input__ }}"
+    - name: Print template
+      ansible.builtin.debug:
+        msg: "{{ obj_ontap_svm }}"
+    - name: Merge SVM
       ansible.builtin.set_fact:
-        "{{ item }}": "{{ svm[item] }}"
-      loop:
-        "{{ svm | list }}"
-      when:
-        - svm[item]
-  tags:
-    - always
+        __new_obj_svm__: "{{ obj_ontap_svm | combine(__input__, recursive=True) }}"
+    - name: Print merged svm
+      ansible.builtin.debug:
+        msg: "{{ __new_obj_svm__ }}"
+  when: __input__ is defined
+  tags: always
 
 - name: Create SVM
   na_ontap_svm:
     state:                        present
-    name:                         "{{ name }}"
-    language:                     "{{ language }}"
-    comment:                      "{{ comment }}"
-    ipspace:                      "{{ ipspace.name }}"
-    snapshot_policy:              "{{ snapshot_policy.name }}"
+    name:                         "{{ __new_obj_svm__.name }}"
+    language:                     "{{ __new_obj_svm__.language }}"
+    comment:                      "{{ __new_obj_svm__.comment }}"
+    ipspace:                      "{{ __new_obj_svm__.ipspace.name }}"
+    snapshot_policy:              "{{ __new_obj_svm__.snapshot_policy.name }}"
     <<: *ontap_login
   tags:
     - create_ontap_svm
@@ -55,7 +77,7 @@
   na_ontap_interface:
     state:                        present
     interface_name:               "{{ item.name }}"
-    vserver:                      "{{ name }}"
+    vserver:                      "{{ __new_obj_svm__.name }}"
     address:                      "{{ item.ip.address }}"
     netmask:                      "{{ item.ip.netmask }}"
     service_policy:               "{{ item.service_policy.name }}"
@@ -65,7 +87,7 @@
     role:                         "data"
     <<: *ontap_login
   loop:
-    "{{ ip_interfaces | list }}"
+    "{{ __new_obj_svm__.ip_interfaces | list }}"
   tags:
     - create_ontap_svm
   when: item.name!=""
@@ -73,20 +95,20 @@
 - name: Configure DNS
   na_ontap_dns:
     state:                        present
-    vserver:                      "{{ name }}"
-    domains:                      "{{ dns.domains }}"
-    nameservers:                  "{{ dns.servers }}"
+    vserver:                      "{{ __new_obj_svm__.name }}"
+    domains:                      "{{ __new_obj_svm__.dns.domains }}"
+    nameservers:                  "{{ __new_obj_svm__.dns.servers }}"
     skip_validation: yes
     <<: *ontap_login
   tags:
     - create_ontap_svm
     - modify_ontap_svm
-  when: (dns.domains[0]!="") and (dns.servers[0]!="")
+  when: (__new_obj_svm__.dns.domains[0]!="") and (__new_obj_svm__.dns.servers[0]!="")
 
 - name: Delete SVM
   na_ontap_svm:
     state:                        absent
-    name:                         "{{ name }}"
+    name:                         "{{ __new_obj_svm__.name }}"
     <<: *ontap_login
   tags:
     - never

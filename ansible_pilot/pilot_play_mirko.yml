@@ -1,14 +1,34 @@
 ---
 - hosts: "{{ cluster_name }}"
   gather_facts: false
-
+  #vars_files:
+  #  - ./roles/ontap_svm/vars/template_mirko.yml
   tasks:
-  - name: Include svm role
+  - name: Include svm role by hostvars
     include_role:
       name: ontap_svm
-
+    vars:
+      - __svm_name__: "{{ svm_name1 }}"
     tags: always
-  - name: Print name after role
+
+  - name: Register SVM
+    ansible.builtin.set_fact:
+      new_obj_svm: "{{ new_obj_svm|default({}) | combine( {svm_name1: __new_obj_svm__} ) }}"
+    tags: always
+  - name: Include svm role by template
+    include_role:
+      name: ontap_svm
+      vars_from: "{{ svm_template | default('main') }}"
+    vars:
+      - __input__: "{{obj_svm}}"
+    tags: always
+
+  - name: Register SVM
+    ansible.builtin.set_fact:
+      new_obj_svm: "{{ new_obj_svm|default({}) | combine( {svm_name2: __new_obj_svm__} ) }}"
+    tags: always
+    
+  - name: Print created SVMs
     ansible.builtin.debug:
-      msg: "hoho : {{ name }}"
+      msg: "{{ new_obj_svm }}"
     tags: always

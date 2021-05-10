@@ -1,5 +1,28 @@
 ---
 cluster_name: 'r2d2'
-svm_name: 'pri_svm_01'
+svm_name1: 'pri_svm_01'
+svm_name2: 'hoho'
 ontap_username: 'admin'
 ontap_password: 'Netapp12'
+obj_svm:
+  name: 'hoho'
+  ip_interfaces:
+  - location:
+      auto_revert:        true
+      home_node:
+        name:             "r2d2-01"
+      failover:           "broadcast_domain_only"
+      home_port:
+        name:             "e0c-16"
+        node:
+          name:           "r2d2-01"
+    ip:
+      address:            "172.16.7.57"
+      netmask:            "255.255.0.0"
+    name:                 "pri_svm_01_mirko"
+    ipspace:
+      name:               "Default"
+    service_policy:
+      name:               "default-management"
+    enabled:              true
+svm_template : 'template_mirko'
