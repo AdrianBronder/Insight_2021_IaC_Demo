@@ -13,7 +13,7 @@
 
   - name: Register SVM
     ansible.builtin.set_fact:
-      new_obj_svm: "{{ new_obj_svm|default({}) | combine( {svm_name1: __new_obj_svm__} ) }}"
+      new_obj_svm: "{{ new_obj_svm|default({}) | combine( {__new_obj_svm__.name: __new_obj_svm__} ) }}"
     tags: always
   - name: Include svm role by template
     include_role:
@@ -25,10 +25,11 @@
 
   - name: Register SVM
     ansible.builtin.set_fact:
-      new_obj_svm: "{{ new_obj_svm|default({}) | combine( {svm_name2: __new_obj_svm__} ) }}"
+      new_obj_svm: "{{ new_obj_svm|default({}) | combine( {__new_obj_svm__.name: __new_obj_svm__} ) }}"
     tags: always
-    
+
   - name: Print created SVMs
     ansible.builtin.debug:
-      msg: "{{ new_obj_svm }}"
+      msg: "{{ item }}"
+    loop: "{{new_obj_svm | list}}"
     tags: always
