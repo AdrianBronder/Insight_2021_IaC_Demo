@@ -6,22 +6,15 @@ ontap_password: 'Netapp12'
 obj_svm:
   name: 'hoho'
   ip_interfaces:
-  - location:
-      auto_revert:        true
-      home_node:
-        name:             "r2d2-01"
-      failover:           "broadcast_domain_only"
-      home_port:
-        name:             "e0c-16"
-        node:
-          name:           "r2d2-01"
-    ip:
+  - ip:
       address:            "172.16.7.57"
-      netmask:            "255.255.0.0"
-    name:                 "pri_svm_01_mirko"
-    ipspace:
-      name:               "Default"
+    name:                 "pri_svm_01_mgmt"
     service_policy:
       name:               "default-management"
-    enabled:              true
-svm_template : 'template_mirko'
+  - ip:
+      address:            "172.16.7.58"
+    name:                 "pri_svm_01_mirko"
+    service_policy:
+      name:               "default-management"
+svm_template:             "template_mirko"
+ip_interface_template:    "template_mirko"

@@ -1,12 +1,18 @@
 ---
 # tasks file for ontap_svm
-- name: Prevent run without tags
-  fail: msg="You must run this role [ontap_svm] with tags!"
+- name: Prevent run without __action__ variable
+  fail:
+    msg:
+      - "You must run this role [ontap_svm] with an __action__ variable"
+      - "Valid values are 'create' or 'delete'"
+  when: __action__ is undefined or (__action__!="create" and __action__!="delete")
 
-- name: Check __svm_name__ or __input__ variables
-  fail: msg="You must pass the '__svm_name__' or '__input__' variable"
-  when: __svm_name__ is undefined and __input__ is undefined
-  tags: always
+- name: Check valid input
+  fail:
+    msg:
+      - "You must pass the 'ontap_svm_name'"
+      - "or pass the '__input__' variable"
+  when: ontap_svm_name is undefined and __input__ is undefined
 
 - name: Set Connection Details
   ansible.builtin.set_fact:
@@ -17,99 +23,92 @@
       https:                      true
       validate_certs:             false
       use_rest:                   Never
-  tags:
-    - always
   no_log: true
 
 - name: Source Inventory Information
   block:
-    - name: Print SVMs
-      ansible.builtin.debug:
-        msg: "{{ svms }}"
-    - name: Searching SVM
-      ansible.builtin.debug:
-        msg: "{{ __svm_name__ }}"
+    # - name: Print SVMs
+    #   ansible.builtin.debug:
+    #     var: svms
+    #     verbosity: 4
+    # - name: Searching SVM
+    #   ansible.builtin.debug:
+    #     var: ontap_svm_name
+    #     verbosity: 4
     - name: Find SVM
       ansible.builtin.set_fact:
-        __new_obj_svm__: "{{ item }}"
+        ontap_svm_obj: "{{ item }}"
       loop:
         "{{ svms | list }}"
       when:
-        - item.name==__svm_name__
-    - name: Print found SVM
-      ansible.builtin.debug:
-        msg: "{{ __new_obj_svm__ }}"
+        - item.name==ontap_svm_name
+    # - name: Print found SVM
+    #   ansible.builtin.debug:
+    #     var: ontap_svm_obj
+    #     verbosity: 4
 
   when: __input__ is undefined
-  tags: always
-
 - name: Template Information
   block:
-    - name: Print passed input
-      ansible.builtin.debug:
-        msg: "{{ __input__ }}"
-    - name: Print template
-      ansible.builtin.debug:
-        msg: "{{ obj_ontap_svm }}"
+    # - name: Print passed input
+    #   ansible.builtin.debug:
+    #     var: __input__
+    #     verbosity: 4
+    # - name: Print template
+    #   ansible.builtin.debug:
+    #     var: obj_ontap_svm
+    #     verbosity: 4
     - name: Merge SVM
       ansible.builtin.set_fact:
-        __new_obj_svm__: "{{ obj_ontap_svm | combine(__input__, recursive=True) }}"
-    - name: Print merged svm
-      ansible.builtin.debug:
-        msg: "{{ __new_obj_svm__ }}"
+        ontap_svm_obj: "{{ obj_ontap_svm | combine(__input__, recursive=True) }}"
+    # - name: Print merged svm
+    #   ansible.builtin.debug:
+    #     var: ontap_svm_obj
+    #     verbosity: 4
   when: __input__ is defined
-  tags: always
 
-- name: Create SVM
-  na_ontap_svm:
-    state:                        present
-    name:                         "{{ __new_obj_svm__.name }}"
-    language:                     "{{ __new_obj_svm__.language }}"
-    comment:                      "{{ __new_obj_svm__.comment }}"
-    ipspace:                      "{{ __new_obj_svm__.ipspace.name }}"
-    snapshot_policy:              "{{ __new_obj_svm__.snapshot_policy.name }}"
-    <<: *ontap_login
-  tags:
-    - create_ontap_svm
-    - modify_ontap_svm
-
-- name: Create LIFs
-  na_ontap_interface:
-    state:                        present
-    interface_name:               "{{ item.name }}"
-    vserver:                      "{{ __new_obj_svm__.name }}"
-    address:                      "{{ item.ip.address }}"
-    netmask:                      "{{ item.ip.netmask }}"
-    service_policy:               "{{ item.service_policy.name }}"
-    home_node:                    "{{ item.location.home_node.name }}"
-    home_port:                    "{{ item.location.home_port.name }}"
-# FIXME - This one is ugly, but "role" must be provided as long as we have to use ZAPI here
-    role:                         "data"
-    <<: *ontap_login
-  loop:
-    "{{ __new_obj_svm__.ip_interfaces | list }}"
-  tags:
-    - create_ontap_svm
-  when: item.name!=""
-
-- name: Configure DNS
-  na_ontap_dns:
-    state:                        present
-    vserver:                      "{{ __new_obj_svm__.name }}"
-    domains:                      "{{ __new_obj_svm__.dns.domains }}"
-    nameservers:                  "{{ __new_obj_svm__.dns.servers }}"
-    skip_validation: yes
-    <<: *ontap_login
-  tags:
-    - create_ontap_svm
-    - modify_ontap_svm
-  when: (__new_obj_svm__.dns.domains[0]!="") and (__new_obj_svm__.dns.servers[0]!="")
+- name: Create svm
+  block:
+  - name: Create SVM
+    na_ontap_svm:
+      state:                        present
+      name:                         "{{ ontap_svm_obj.name }}"
+      language:                     "{{ ontap_svm_obj.language }}"
+      comment:                      "{{ ontap_svm_obj.comment }}"
+      ipspace:                      "{{ ontap_svm_obj.ipspace.name }}"
+      snapshot_policy:              "{{ ontap_svm_obj.snapshot_policy.name }}"
+      <<: *ontap_login
+  - name: Create Lifs by hostvars
+    include_role:
+      name: ontap_ip_interface
+    vars:
+      - ontap_svm_name: "{{ ontap_svm_obj.name }}"
+      - ontap_ip_interface_name: "{{ item.name }}"
+    when: (__input__ is undefined) and (item.name!="")
+    loop: "{{ ontap_svm_obj.ip_interfaces | list }}"
+  - name: Create Lifs by template
+    include_role:
+      name: ontap_ip_interface
+      vars_from: "{{ ip_interface_template | default('main') }}"
+    vars:
+      - ontap_svm_name: "{{ontap_svm_obj.name}}"
+      - __input__: "{{ item }}"
+    when: (__input__ is defined) and (item.name!="")
+    loop: "{{ ontap_svm_obj.ip_interfaces | list }}"
+  - name: Configure DNS
+    na_ontap_dns:
+      state:                        present
+      vserver:                      "{{ ontap_svm_obj.name }}"
+      domains:                      "{{ ontap_svm_obj.dns.domains }}"
+      nameservers:                  "{{ ontap_svm_obj.dns.servers }}"
+      skip_validation: yes
+      <<: *ontap_login
+    when: (ontap_svm_obj.dns.domains[0]!="") and (ontap_svm_obj.dns.servers[0]!="")
+  when: __action__ == "create"
 
 - name: Delete SVM
   na_ontap_svm:
     state:                        absent
-    name:                         "{{ __new_obj_svm__.name }}"
+    name:                         "{{ ontap_svm_obj.name }}"
     <<: *ontap_login
-  tags:
-    - never
-    - delete_ontap_svm
+  when: __action__ == "delete"
