@@ -1,0 +1,103 @@
+---
+# tasks file for ontap_svm
+#- name: Prevent run without __action__ variable
+#  fail:
+#    msg:
+#      - "You must run this role [ontap_svm] with an __action__ variable"
+#      - "Valid values are 'create' or 'delete'"
+#  when: __action__ is undefined or (__action__!="create" and __action__!="delete")
+
+- name: Validate Mandatory Input
+  fail:
+    msg:
+      - "You must pass the 'ontap_svm_name'"
+      - "or pass the '__input__' variable"
+  when:
+    - ontap_svm_name is undefined
+    - __ontap_svm_input__.name is undefined
+  tags:
+    - always
+
+- name: Set Connection Details
+  ansible.builtin.set_fact:
+    ontap_login: &ontap_login
+      hostname:                   "{{ ontap_hostname }}"
+      username:                   "{{ ontap_username }}"
+      password:                   "{{ ontap_password }}"
+      https:                      true
+      validate_certs:             false
+      use_rest:                   Never
+  no_log: true
+    - always
+
+- name: Source Inventory Information
+  block:
+    - name: Find SVM
+      ansible.builtin.set_fact:
+        ontap_svm_object: "{{ item | combine(item, recursive=True) }}"
+      loop:
+        "{{ svms | list }}"
+      when:
+        - item.name==ontap_svm_name
+  tags:
+    - source_inventory
+
+- name: Source Template Information
+  block:
+    - name: Merge Defaults/Vars with SVM Input
+      ansible.builtin.set_fact:
+        ontap_svm_obj: "{{ ontap_svm_object | combine(__ontap_svm_input__, recursive=True) }}"
+  when:
+    - __input__ is defined
+
+#- name: Create svm
+#  block:
+
+- name: Create SVM
+  na_ontap_svm:
+    state:                        present
+    name:                         "{{ ontap_svm_object.name }}"
+    language:                     "{{ ontap_svm_object.language             | default(omit) }}"
+    comment:                      "{{ ontap_svm_object.comment              | default(omit) }}"
+    ipspace:                      "{{ ontap_svm_object.ipspace.name         | default(omit)}}"
+    snapshot_policy:              "{{ ontap_svm_object.snapshot_policy.name | default(omit) }}"
+    <<: *ontap_login
+  tags:
+    - create_all
+    - create_ontap_svm
+
+- name: Create Lifs by hostvars
+  include_role:
+    name: ontap_ip_interface
+  vars:
+    - ontap_svm_name: "{{ ontap_svm_obj.name }}"
+    - ontap_ip_interface_name: "{{ item.name }}"
+  when: (__input__ is undefined) and (item.name!="")
+  loop: "{{ ontap_svm_obj.ip_interfaces | list }}"
+
+  - name: Create Lifs by template
+    include_role:
+      name: ontap_ip_interface
+      vars_from: "{{ __ip_interface_template__ | default('main') }}"
+    vars:
+      - ontap_svm_name: "{{ontap_svm_obj.name}}"
+      - __input__: "{{ item }}"
+    when: (__input__ is defined) and (item.name!="")
+    loop: "{{ ontap_svm_obj.ip_interfaces | list }}"
+  - name: Configure DNS
+    na_ontap_dns:
+      state:                        present
+      vserver:                      "{{ ontap_svm_obj.name }}"
+      domains:                      "{{ ontap_svm_obj.dns.domains }}"
+      nameservers:                  "{{ ontap_svm_obj.dns.servers }}"
+      skip_validation: yes
+      <<: *ontap_login
+    when: (ontap_svm_obj.dns.domains[0]!="") and (ontap_svm_obj.dns.servers[0]!="")
+  when: __action__ == "create"
+
+- name: Delete SVM
+  na_ontap_svm:
+    state:                        absent
+    name:                         "{{ ontap_svm_obj.name }}"
+    <<: *ontap_login
+  when: __action__ == "delete"
