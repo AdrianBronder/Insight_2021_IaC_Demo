@@ -15,6 +15,6 @@ obj_svm:
       address:            "172.16.7.58"
     name:                 "pri_svm_01_mirko"
     service_policy:
-      name:               "default-management"
+      name:               "default-data-files"
 svm_template:             "template_mirko"
 ip_interface_template:    "template_mirko"
