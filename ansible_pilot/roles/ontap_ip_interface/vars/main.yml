@@ -1,36 +1,21 @@
 ---
 # template for mirko's lab
-obj_ontap_svm:
-    name:                     ""
-    ipspace:
-      name:                   "Default"
-    language:                 "c.UTF-8"
-    comment: ""
-    dns:
-      domains:
-        -                     "slash.local"
-      servers:
-        -                     "172.16.0.32"
-    ip_interfaces:
-      - location:
-          auto_revert:        true
-          home_node:
-            name:             "r2d2-01"
-          failover:           "broadcast_domain_only"
-          home_port:
-            name:             "e0c-16"
-        ip:
-          netmask:            "255.255.0.0"
-        name:                 "pri_svm_01_mgmt01"
-        ipspace:
-          name:               "Default"
-        service_policy:
-          name:               "default-management"
-        enabled:              true
-    routes:
-      - gateway:              "172.16.0.1"
-        destination:
-          netmask:            "32"
-          address:            "0.0.0.0"
-    snapshot_policy:
-      name:                  "none"
+obj_ontap_lif :
+  location:
+    auto_revert:        true
+    home_node:
+      name:             "r2d2-01"
+    failover:           "broadcast_domain_only"
+    home_port:
+      name:             "e0c-16"
+      node:
+        name:           "r2d2-01"
+  ip:
+    netmask:            "255.255.0.0"
+    address:            ""
+  name:                 ""
+  ipspace:
+    name:               "Default"
+  service_policy:
+    name:               "data"
+  enabled:              true

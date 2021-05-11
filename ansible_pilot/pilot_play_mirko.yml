@@ -29,6 +29,8 @@
       ansible.builtin.set_fact:
         ontap_svm_registry: "{{ ontap_svm_registry|default({}) | combine( {ontap_svm_obj.name: ontap_svm_obj} ) }}"
     tags: by_hostvars
+
+
   - name: create svm by template
     block:
     - name: Include svm role by template
@@ -47,7 +49,7 @@
   - name: Print processed SVMs
     ansible.builtin.debug:
       msg: "{{ item }}"
-    loop: "{{ontap_svm_registry | list}}"
+    loop: "{{ ontap_svm_registry | list }}"
     tags:
       - by_template
       - by_hostvars

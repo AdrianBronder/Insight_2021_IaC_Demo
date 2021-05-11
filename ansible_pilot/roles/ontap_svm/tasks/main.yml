@@ -86,6 +86,7 @@
       - ontap_ip_interface_name: "{{ item.name }}"
     when: (__input__ is undefined) and (item.name!="")
     loop: "{{ ontap_svm_obj.ip_interfaces | list }}"
+
   - name: Create Lifs by template
     include_role:
       name: ontap_ip_interface
