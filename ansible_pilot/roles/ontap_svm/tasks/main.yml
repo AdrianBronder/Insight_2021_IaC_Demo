@@ -89,7 +89,7 @@
   - name: Create Lifs by template
     include_role:
       name: ontap_ip_interface
-      vars_from: "{{ ip_interface_template | default('main') }}"
+      vars_from: "{{ __ip_interface_template__ | default('main') }}"
     vars:
       - ontap_svm_name: "{{ontap_svm_obj.name}}"
       - __input__: "{{ item }}"

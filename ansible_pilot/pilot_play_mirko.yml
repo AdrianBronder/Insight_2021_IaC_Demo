@@ -38,6 +38,7 @@
       vars:
         __input__: "{{obj_svm}}"
         __action__: "{{ svm_action | default('create')}}"
+        __ip_interface_template__: "{{ ip_interface_template }}"
     - name: Register SVM
       ansible.builtin.set_fact:
         ontap_svm_registry: "{{ ontap_svm_registry|default({}) | combine( {ontap_svm_obj.name: ontap_svm_obj} ) }}"
