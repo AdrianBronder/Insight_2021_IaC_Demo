@@ -10,8 +10,7 @@ ntp_servers:
 nodes:
   -
 svms:
-  pri_svm_01:
-    name:                 "pri_svm_01"
+  - name:                 "pri_svm_01"
     language:             "c.UTF-8"
     comment:              "this is my pilot"
     ipspace:
@@ -30,9 +29,8 @@ svms:
         fqdn:             "demo.netapp.com"
     snapshot_policy:
       name:               "none"
-    lifs:
-      pri_svm_01_mgmt01:
-        name:             "pri_svm_01_mgmt01"
+    ip_interfaces:
+      - name:             "pri_svm_01_mgmt01"
         svm:
           name:           "pri_svm_01"
         ip:
@@ -49,3 +47,56 @@ svms:
           failover:       "broadcast_domain_only"
           auto_revert:    true
     volumes:
+      - name:             "pri_svm_01_cifs_001"
+        type:             "rw"
+        size:             "1073741824"
+        style:            "flexvol"
+        comment:          
+        aggregates:       
+          - name:         "aggr1_cluster1_01"
+            uuid:
+        guarantee:
+          type:           "volume"
+          honored:
+        space:
+          size:
+          logical_space:
+            reporting:   true
+            enforcement: true
+          snapshot:
+            reserve_percent: "5"
+        snapshot_policy:
+          name:           "default"
+          uuid:
+        nas:
+          security_style: "ntfs"
+          uid:
+          path:           "/pri_svm_01_cifs_001"
+          export_policy:
+            name:         "default"
+            id:
+          unix_permissions:
+          gid:
+        language:      
+        quota:
+          state:
+        files:
+          maximum:
+          used:
+        qos:
+          policy:
+            max_throughput_iops:
+            max_throughput_mbps:
+            name:
+            min_throughput_iops:
+            min_throughput_mbps:
+            uuid:
+        autosize:
+          minimum:
+          shrink_threshold:
+          maximum:
+          mode:
+          grow_threshold:
+        svm:
+          name:
+          uuid:

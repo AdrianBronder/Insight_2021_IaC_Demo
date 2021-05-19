@@ -1,5 +1,17 @@
 ---
-# tasks file for ontap_svm
+# tasks file for ontap_volume
+
+- name: Validate Mandatory Input
+  fail:
+    msg:
+      - "You must pass the 'ontap_volume_name' and 'ontap_svm_name'"
+      - "or the '__ontap_volume_input__' variable"
+  when:
+    - ((ontap_volume_name is undefined or
+      ontap_svm_name is undefined) and
+      __ontap_volume_input__ is undefined)
+  tags:
+    - always
 
 - name: Set Connection Details
   ansible.builtin.set_fact:
@@ -10,43 +22,84 @@
       https:                      true
       validate_certs:             false
       use_rest:                   Never
+  no_log: true
   tags:
     - always
-- name: Merge template with extraVars
-  set_fact:
-    volumes: "{{ volumes | combine(volume, recursive=True) }}"
-- name: Create Volume
-  na_ontap_volume:
-    state: present
-    name: "{{ volume_name }}"
-    vserver: "{{ vserver }}"
-    aggregate_name: "{{ aggr }}"
-    size: "{{ size_mb }}"
-    size_unit: "mb"
-    policy: "default"
-    junction_path: "/{{ volume_name }}"
-    hostname: "{{ cluster }}"
-    username: "{{ username }}"
-    password: "{{ password }}"
-    https: true
-    validate_certs: false
-- name: Create Volume
-  na_ontap_svm:
-    state:                        present
-    name:                         "{{ name }}"
-    language:                     "{{ language }}"
-    comment:                      "{{ comment }}"
-    ipspace:                      "{{ ipspace.name }}"
-    snapshot_policy:              "{{ snapshot_policy.name }}"
-    <<: *ontap_login
+
+- name: Source Inventory Information
+  block:
+    - name: Find SVM
+      ansible.builtin.set_fact:
+        ontap_svm_object: "{{ item }}"
+      loop:
+        "{{ svms | list }}"
+      when:
+        - item.name == ontap_svm_name
+    - name: Find Volume
+      ansible.builtin.set_fact:
+        ontap_volume_object: "{{ item }}"
+      loop:
+        "{{ ontap_svm_object.volumes | list}}"
+      when:
+        - item.name == ontap_volume_name
   tags:
-    - create_ontap_svm
-    - modify_ontap_svm
+    - source_inventory
+# FIXME - Additioanl condition required to check, if SVM has been found in inventory
+
+- name: Source Template Information
+  block:
+    - name: Merge Defaults/Vars with Volume Input
+      ansible.builtin.set_fact:
+        ontap_volume_object: "{{ ontap_volume_object | combine(__ontap_volume_input__, recursive=True) }}"
+  when:
+    - __ontap_volume_input__ is defined
+
+- name: Create Volume (FlexVol)
+  na_ontap_volume:
+    state:                        present
+    name:                         "{{ ontap_volume_name }}"
+    vserver:                      "{{ ontap_svm_name }}"
+    comment:                      "{{ ontap_volume_object.comment | default(omit) }}"
+    aggregate_name:               "{{ ontap_volume_object.aggregates[0].name | default(omit) }}"
+    size:                         "{{ ontap_volume_object.size | default(omit) }}"
+    size_unit:                    "b"
+    space_guarantee:              "{{ ontap_volume_object.guarantee.type | default(omit) }}"
+    export_policy:                "{{ ontap_volume_object.nas.export_policy.name | default(omit) }}"
+    percent_snapshot_space:       "{{ ontap_volume_object.space.snapshot.reserve_percent | default(omit) }}"
+    junction_path:                "{{ ontap_volume_object.nas.path | default(omit) }}"
+    volume_security_style:        "{{ ontap_volume_object.nas.security_style | default(omit) }}"
+    type:                         "{{ ontap_volume_object.type | default(omit) }}"
+    qos_policy_group: 
+# FIXME - Parameter needs to be investigated
+    wait_for_completion:          True
+    <<: *ontap_login
+  when:
+    - ( ontap_volume_object.aggregates | length ) == 1
+  tags:
+    - create_all
+    - create_ontap_volume
+
+# FIXME - Not developed yet
+- name: Create Volume (FlexGroup)
+  na_ontap_volume:
+    state:                        present
+    name:                         "{{ ontap_volume_name }}"
+    vserver:                      "{{ ontap_svm_name }}"
+    <<: *ontap_login
+  when:
+    - ( ontap_volume_object.aggregates | length ) > 1
+    - 0 == 1
+  tags:
+    - create_all
+    - create_ontap_volume
 
 - name: Delete Volume
-  na_ontap_svm:
+  na_ontap_volume:
     state:                        absent
-    name:                         "{{ name }}"
+    name:                         "{{ ontap_volume_name }}"
+    vserver:                      "{{ ontap_svm_name }}"
     <<: *ontap_login
   tags:
-    - delete_ontap_svm
+    - never
+    - delete_all
+    - delete_ontap_volume

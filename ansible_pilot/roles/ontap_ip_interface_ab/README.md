@@ -11,12 +11,7 @@ Any pre-requisites that may not be covered by Ansible itself or the role should 
 Role Variables
 --------------
 
-This role currently supports two types of variable inputs:
-1) Reading information from the hostvars by specifying the SVM to look for with "ontap_svm_name"
-2) passing an object "__ontap_svm_input__"
-
-Optional:
-If you want to create a management interface to e.g. configure DNS and CIFS, you can provide a name for that as well with "ontap_ip_interface_name". The name will be either looked up from the hostvars or the input object.
+A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
 
 Dependencies
 ------------

@@ -3,5 +3,5 @@
   gather_facts: false
 
   roles:
-  - role: ontap_svm_ab
   - role: ontap_volume
+  - role: ontap_svm_ab
