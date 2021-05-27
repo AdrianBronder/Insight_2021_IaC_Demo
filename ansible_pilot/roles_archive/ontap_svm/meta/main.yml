@@ -1,7 +1,7 @@
 galaxy_info:
-  author:      Mirko van Colen & Adrian Bronder
-  description: Standard definitions for managing ONTAP Volumes
-  company:     NetApp
+  author: Adrian Bronder
+  description: Standard definitions for managing Storage Virtual Machines(SVMs)
+  company: NetApp
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value

@@ -1,0 +1,59 @@
+---
+- name: Validate Mandatory Input
+  fail:
+    msg:
+      - "You must pass the 'ontap_cluster_name'"
+      - "or pass the '__ontap_cluster_input__' variable"
+  when:
+    - (ontap_cluster_name is undefined and
+       __ontap_cluster_input__.name is undefined)
+  tags:
+    - always
+
+- name: Set Connection Details
+  ansible.builtin.set_fact:
+    ontap_login: &ontap_login
+      hostname:                   "{{ ontap_hostname }}"
+      username:                   "{{ ontap_username }}"
+      password:                   "{{ ontap_password }}"
+      https:                      true
+      validate_certs:             false
+      use_rest:                   Never
+  no_log: true
+  tags:
+    - always
+
+# FIXME - Not required for cluster (top level host vars - need to check, if that causes problems...)
+- name: Source Inventory Information
+  block:
+    - name: Get Cluster Vars
+      ansible.builtin.set_fact:
+        ontap_cluster_object: "{{ hostvars[ontap_cluster_name] | combine(item, recursive=True) }}"
+      when:
+        - hostvars[ontap_cluster_name].name == ontap_cluster_name
+  tags:
+    - source_inventory
+# FIXME - Additional condition required, to check if SVM has been found in inventory
+
+- name: Source Template Information
+  block:
+    - name: Merge Defaults/Vars with SVM Input
+      ansible.builtin.set_fact:
+        ontap_cluster_object: "{{ ontap_cluster_object | combine(__ontap_cluster_input__, recursive=True) }}"
+  when:
+    - __ontap_cluster_input__ is defined
+
+- name: Configure DNS
+  na_ontap_dns:
+    state:                        present
+    vserver:                      "{{ ontap_cluster_name }}"
+    domains:                      "{{ ontap_cluster_object.dns_domains             | default(omit) }}"
+    nameservers:                  "{{ ontap_cluster_object.dns_servers             | default(omit) }}"
+#    skip_validation: yes
+    <<: *ontap_login
+  when:
+    - ontap_cluster_object.dns.domains[0] is defined
+    - ontap_cluster_object.dns.servers[0] is defined
+  tags:
+    - create_all
+    - modify_ontap_cluster

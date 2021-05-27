@@ -1,6 +1,6 @@
 ---
 # defaults file for ontap_svm
-ontap_svm_object:
+obj_ontap_svm :
   dns:
     domains: []
     servers: []

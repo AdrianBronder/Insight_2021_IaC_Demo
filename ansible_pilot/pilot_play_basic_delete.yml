@@ -1,0 +1,7 @@
+---
+- hosts:        "{{ ontap_cluster_name }}"
+  gather_facts: false
+
+  roles:
+  - role: ontap_volume
+  - role: ontap_svm

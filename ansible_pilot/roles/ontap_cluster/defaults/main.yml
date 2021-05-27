@@ -1,0 +1,26 @@
+---
+# defaults file for ontap_cluster
+name:
+location:
+contact:
+uuid:
+version:
+  generation:
+  minor:
+  major:
+  full:
+management_interfaces:
+  - ip:
+      address:
+      netmask:
+    name:
+    uuid:
+dns_domains: []
+name_servers: []
+ntp_servers: []
+timezone:
+  name:
+certificate:
+  name:
+  uuid:
+san_optimized:

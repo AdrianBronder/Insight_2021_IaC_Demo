@@ -1,6 +1,6 @@
 galaxy_info:
   author:      Mirko van Colen & Adrian Bronder
-  description: Standard definitions for managing ONTAP Volumes
+  description: Standard definitions for managing clusters
   company:     NetApp
 
   # If the issue tracker for your role is not on github, uncomment the

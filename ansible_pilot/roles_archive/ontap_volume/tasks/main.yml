@@ -33,8 +33,6 @@
         ontap_svm_object: "{{ item }}"
       loop:
         "{{ svms | list }}"
-      loop_control:
-        label: "{{ item.name }}"
       when:
         - item.name == ontap_svm_name
     - name: Find Volume
@@ -42,8 +40,6 @@
         ontap_volume_object: "{{ item }}"
       loop:
         "{{ ontap_svm_object.volumes | list}}"
-      loop_control:
-        label: "{{ item.name }}"
       when:
         - item.name == ontap_volume_name
   tags:
@@ -63,15 +59,16 @@
     state:                        present
     name:                         "{{ ontap_volume_name }}"
     vserver:                      "{{ ontap_svm_name }}"
-    comment:                      "{{ ontap_volume_object.comment                        | default(omit) }}"
-    aggregate_name:               "{{ ontap_volume_object.aggregates[0].name             | default(omit) }}"
-    size:                         "{{ ontap_volume_object.size                           | default(omit) }}"
+    comment:                      "{{ ontap_volume_object.comment | default(omit) }}"
+    aggregate_name:               "{{ ontap_volume_object.aggregates[0].name | default(omit) }}"
+    size:                         "{{ ontap_volume_object.size | default(omit) }}"
     size_unit:                    "b"
-    space_guarantee:              "{{ ontap_volume_object.guarantee.type                 | default(omit) }}"
-    export_policy:                "{{ ontap_volume_object.nas.export_policy.name         | default(omit) }}"
+    space_guarantee:              "{{ ontap_volume_object.guarantee.type | default(omit) }}"
+    export_policy:                "{{ ontap_volume_object.nas.export_policy.name | default(omit) }}"
     percent_snapshot_space:       "{{ ontap_volume_object.space.snapshot.reserve_percent | default(omit) }}"
-    volume_security_style:        "{{ ontap_volume_object.nas.security_style             | default(omit) }}"
-    type:                         "{{ ontap_volume_object.type                           | default(omit) }}"
+    junction_path:                "{{ ontap_volume_object.nas.path | default(omit) }}"
+    volume_security_style:        "{{ ontap_volume_object.nas.security_style | default(omit) }}"
+    type:                         "{{ ontap_volume_object.type | default(omit) }}"
     qos_policy_group: 
 # FIXME - Parameter needs to be investigated
     wait_for_completion:          True
@@ -92,19 +89,6 @@
   when:
     - ( ontap_volume_object.aggregates | length ) > 1
     - 0 == 1
-  tags:
-    - create_all
-    - create_ontap_volume
-
-- name: Mount RW Volume
-  na_ontap_volume:
-    state:                        present
-    name:                         "{{ ontap_volume_name }}"
-    vserver:                      "{{ ontap_svm_name }}"
-    junction_path:                "{{ ontap_volume_object.nas.path                       | default(omit) }}"
-    <<: *ontap_login
-  when:
-    - ontap_volume_object.type is undefined or ontap_volume_object.type == "rw"
   tags:
     - create_all
     - create_ontap_volume
