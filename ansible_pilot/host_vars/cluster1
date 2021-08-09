@@ -1,4 +1,4 @@
-me:                     cluster1
+name:                     cluster1
 dns_domains:
   -                       demo.netapp.com
 name_servers:
