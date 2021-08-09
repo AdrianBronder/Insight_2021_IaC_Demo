@@ -121,6 +121,12 @@
         name:                    "Default Survey for 'Basic SVM Create'"
         description:             ""
         spec:
+        - question_name:         "Action"
+          description:           "Describing the action to be performed"
+          required:              True
+          type:                  "multiplechoice"
+          choices:               "create\ndelete"
+          variable:              "ontap_ansiblerole_action"
         - question_name:         "Cluster Name"
           description:           "ONTAP Cluster to act on"
           required:              True
@@ -141,6 +147,7 @@
           required:              True
           type:                  "text"
           variable:              "ontap_volume_name"
+      <<: *input
 
   - name: Create Job Template for Deleting an SVM
     tower_job_template:
@@ -156,6 +163,12 @@
         name:                    "Default Survey for 'Basic SVM Delete'"
         description:             ""
         spec:
+        - question_name:         "Action"
+          description:           "Describing the action to be performed"
+          required:              True
+          type:                  "multiplechoice"
+          choices:               "create\ndelete"
+          variable:              "ontap_ansiblerole_action"
         - question_name:         "Cluster Name"
           description:           "ONTAP Cluster to act on"
           required:              True
@@ -171,3 +184,4 @@
           required:              True
           type:                  "text"
           variable:              "ontap_volume_name"
+      <<: *input

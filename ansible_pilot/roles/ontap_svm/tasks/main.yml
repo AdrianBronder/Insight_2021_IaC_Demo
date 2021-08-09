@@ -11,6 +11,15 @@
   tags:
     - always
 
+- name: Validate Action
+  fail:
+    msg:
+      - "You must pass the 'ontap_ansiblerole_action' variable"
+  when:
+    - ontap_ansiblerole_action is undefined
+  tags:
+    - always
+
 - name: Set Connection Details
   ansible.builtin.set_fact:
     ontap_login: &ontap_login
@@ -35,8 +44,8 @@
         label: "{{ item.name }}"
       when:
         - item.name == ontap_svm_name
-  tags:
-    - source_inventory
+  when:
+    - source_inventory is true
 # FIXME - Additional condition required, to check if SVM has been found in inventory
 
 - name: Source Template Information
@@ -47,66 +56,10 @@
   when:
     - __ontap_svm_input__ is defined
 
-- name: Create SVM
-  na_ontap_svm:
-    state:                        present
-    name:                         "{{ ontap_svm_name }}"
-    language:                     "{{ ontap_svm_object.language             | default(omit) }}"
-    comment:                      "{{ ontap_svm_object.comment              | default(omit) }}"
-    ipspace:                      "{{ ontap_svm_object.ipspace.name         | default(omit) }}"
-    snapshot_policy:              "{{ ontap_svm_object.snapshot_policy.name | default(omit) }}"
-    <<: *ontap_login
-  tags:
-    - create_all
-    - create_ontap_svm
-
-- name: Management IP Interface
-  block:
-  - name: Create Management IP Interface
-    na_ontap_interface:
-      state:                        present
-      interface_name:               "{{ item.name }}"
-      vserver:                      "{{ ontap_svm_name }}"
-      address:                      "{{ item.ip.address }}"
-      netmask:                      "{{ item.ip.netmask }}"
-      service_policy:               "{{ item.service_policy.name }}"
-      home_node:                    "{{ item.location.home_node.name }}"
-      home_port:                    "{{ item.location.home_port.name }}"
-# FIXME - This one is ugly, but "role" must be provided as long as we have to use ZAPI here
-      role:                         "data"
-      <<: *ontap_login
-    loop:
-      "{{ ontap_svm_object.ip_interfaces | list }}"
-    when:
-      - item.name == ontap_ip_interface_name
+- include:           ontap_svm_create.yml
   when:
-    - ontap_ip_interface_name is defined
-  tags:
-    - create_all
-    - create_ontap_svm
+    - ontap_ansiblerole_action is "create"
 
-- name: Configure DNS
-  na_ontap_dns:
-    state:                        present
-    vserver:                      "{{ ontap_svm_name }}"
-    domains:                      "{{ ontap_svm_object.dns.domains             | default(omit) }}"
-    nameservers:                  "{{ ontap_svm_object.dns.servers             | default(omit) }}"
-#    skip_validation: yes
-    <<: *ontap_login
+- include:           ontap_svm_delete.yml
   when:
-    - ontap_ip_interface_name is defined
-    - ontap_svm_object.dns.domains[0] is defined
-    - ontap_svm_object.dns.servers[0] is defined
-  tags:
-    - create_all
-    - create_ontap_svm
-
-- name: Delete SVM
-  na_ontap_svm:
-    state:                        absent
-    name:                         "{{ ontap_svm_name }}"
-    <<: *ontap_login
-  tags:
-    - never
-    - delete_all
-    - delete_ontap_svm
+    - ontap_ansiblerole_action is "delete"
