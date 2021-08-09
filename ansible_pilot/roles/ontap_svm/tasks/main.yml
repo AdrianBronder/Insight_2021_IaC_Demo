@@ -45,6 +45,7 @@
       when:
         - item.name == ontap_svm_name
   when:
+    - source_inventory is defined
     - source_inventory is true
 # FIXME - Additional condition required, to check if SVM has been found in inventory
 
