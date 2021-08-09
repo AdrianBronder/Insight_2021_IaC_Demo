@@ -1,0 +1,45 @@
+---
+- name: Create SVM
+  na_ontap_svm:
+    state:                        present
+    name:                         "{{ ontap_svm_name }}"
+    language:                     "{{ ontap_svm_object.language             | default(omit) }}"
+    comment:                      "{{ ontap_svm_object.comment              | default(omit) }}"
+    ipspace:                      "{{ ontap_svm_object.ipspace.name         | default(omit) }}"
+    snapshot_policy:              "{{ ontap_svm_object.snapshot_policy.name | default(omit) }}"
+    <<: *ontap_login
+
+- name: Management IP Interface
+  block:
+  - name: Create Management IP Interface
+    na_ontap_interface:
+      state:                        present
+      interface_name:               "{{ item.name }}"
+      vserver:                      "{{ ontap_svm_name }}"
+      address:                      "{{ item.ip.address }}"
+      netmask:                      "{{ item.ip.netmask }}"
+      service_policy:               "{{ item.service_policy.name }}"
+      home_node:                    "{{ item.location.home_node.name }}"
+      home_port:                    "{{ item.location.home_port.name }}"
+# FIXME - This one is ugly, but "role" must be provided as long as we have to use ZAPI here
+      role:                         "data"
+      <<: *ontap_login
+    loop:
+      "{{ ontap_svm_object.ip_interfaces | list }}"
+    when:
+      - item.name == ontap_ip_interface_name
+  when:
+    - ontap_ip_interface_name is defined
+
+- name: Configure DNS
+  na_ontap_dns:
+    state:                        present
+    vserver:                      "{{ ontap_svm_name }}"
+    domains:                      "{{ ontap_svm_object.dns.domains             | default(omit) }}"
+    nameservers:                  "{{ ontap_svm_object.dns.servers             | default(omit) }}"
+#    skip_validation: yes
+    <<: *ontap_login
+  when:
+    - ontap_ip_interface_name is defined
+    - ontap_svm_object.dns.domains[0] is defined
+    - ontap_svm_object.dns.servers[0] is defined
