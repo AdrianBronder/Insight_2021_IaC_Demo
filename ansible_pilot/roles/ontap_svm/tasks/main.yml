@@ -59,8 +59,8 @@
 
 - include:           ontap_svm_create.yml
   when:
-    - ontap_ansiblerole_action is "create"
+    - ontap_ansiblerole_action == "create"
 
 - include:           ontap_svm_delete.yml
   when:
-    - ontap_ansiblerole_action is "delete"
+    - ontap_ansiblerole_action == "delete"

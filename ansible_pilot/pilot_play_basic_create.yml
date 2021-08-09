@@ -3,6 +3,7 @@
   gather_facts: false
   vars:
     ontap_ansiblerole_action:     "create"
+    source_inventory:             True
   
   roles:
   - role: ontap_svm
