@@ -28,7 +28,7 @@
     - awx.awx
 
   tasks:
-    - name: Disable Auto Download of Role Requirements
+  - name: Disable Auto Download of Role Requirements
     tower_settings:
       settings:
         AWX_ROLES_ENABLED:       false
@@ -91,6 +91,7 @@
       name:                      "LoD Inventory"
       description:               "Inventory for virtual lab environment"
       organization:              "NetApp LoD"
+      <<: *input
 
   - name: Add LoD Inventory Source - From Project Root
     tower_inventory_source:
@@ -99,18 +100,34 @@
       description:               "Inventory file sourced from root of pilot folder"
       inventory:                 "LoD Inventory"
       source:                    "scm"
+      source_project:            "LoD Demo - Ansible Pilot"
       source_path:               "ansible_pilot/inventory"
-      update_on_launch:          true
-      overwrite:                 true
+      update_on_project_update:  True
+      update_on_launch:          False
+      overwrite:                 True
+      <<: *input
 
   - name: Create Job Template for Creating an SVM
     tower_job_template:
       state:                     present
-      name:                      "Basic SVM Created"
+      name:                      "Basic SVM Create"
       job_type:                  "run"
       inventory:                 "LoD Inventory"
       project:                   "LoD Demo - Ansible Pilot"
       playbook:                  "ansible_pilot/pilot_play_basic_create.yml"
       credential:                "ONTAP Default Credentials"
-      survey_enabled:            yes
-#      survey_spec:               "{{ lookup('file', 'my_survey.json') }}"
+      survey_enabled:            "yes"
+      survey_spec:
+        - question_name:         "Cluster Name"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_cluster_name"
+        - question_name:         "SVM Name"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_svm_name"
+        - question_name:         "Management Interface Name"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_ip_interface_name"
+      <<: *input
