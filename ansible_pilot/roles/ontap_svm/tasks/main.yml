@@ -1,4 +1,8 @@
 ---
+##############################################################
+### Run Pre-steps
+##############################################################
+
 - name: Validate Mandatory Input
   fail:
     msg:
@@ -56,6 +60,12 @@
         ontap_svm_object: "{{ ontap_svm_object | combine(__ontap_svm_input__, recursive=True) }}"
   when:
     - __ontap_svm_input__ is defined
+
+
+
+##############################################################
+### Initiate Action
+##############################################################
 
 - include:           ontap_svm_create.yml
   when:
