@@ -1,0 +1,25 @@
+---
+- name: Set Connection Details
+  ansible.builtin.set_fact:
+    ontap_login: &ontap_login
+      hostname:                   "{{ ontap_hostname }}"
+      username:                   "{{ ontap_username }}"
+      password:                   "{{ ontap_password }}"
+      https:                      true
+      validate_certs:             false
+      use_rest:                   Never
+  no_log: true
+
+- name: Create Volume (FlexVol)
+  na_ontap_rest_info:
+    parameters:
+      name:                       "{{ ontap_volume_name }}"
+      svm.name:                   "{{ ontap_svm_name }}"
+    gather_subset:
+    - storage/volumes
+    <<: *ontap_login
+  register: ontap_volume_object
+
+- name: debug output
+  ansible.builtin.debug:
+    msg: "{{ ontap_volume_object }}"

@@ -1,8 +1,0 @@
----
-- hosts:        cluster1
-  gather_facts: false
-
-  tasks:
-  - name: Print hostvars
-    debug:
-      msg: "{{ hostvars['cluster1'] }}"
