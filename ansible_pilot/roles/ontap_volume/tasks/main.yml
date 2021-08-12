@@ -67,7 +67,7 @@
 ### Initiate Action
 ##############################################################
 
-- include:           ontap_volume_infoyml
+- include:           ontap_volume_info.yml
   when:
     - ontap_ansiblerole_action == "info"
 
