@@ -67,10 +67,26 @@
 ### Initiate Action
 ##############################################################
 
-- include:           ontap_svm_create.yml
+- name: Read SVM Information into 'ontap_volume_object'
+  include_tasks:      ontap_svm_info.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
+  when:
+    - ontap_ansiblerole_action == "info"
+
+- name: Create SVM
+  include_tasks:      ontap_svm_create.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
   when:
     - ontap_ansiblerole_action == "create"
 
-- include:           ontap_svm_delete.yml
+- name: Delete SVM
+  include_tasks:      ontap_svm_delete.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
   when:
     - ontap_ansiblerole_action == "delete"

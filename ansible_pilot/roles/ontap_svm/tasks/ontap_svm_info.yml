@@ -10,24 +10,23 @@
       use_rest:                   Never
   no_log: true
 
-- name: Get Volume Info
+- name: Get SVM Info
   na_ontap_rest_info:
     gather_subset:
-    - storage/volumes
+    - svm/svms
     parameters:
-      name:                       "{{ ontap_volume_name }}"
-      svm.name:                   "{{ ontap_svm_name }}"
+      name:                       "{{ ontap_svm_name }}"
     fields:
     - '*'
     <<: *ontap_login
-  register: __ontap_volume_input__
+  register: __ontap_svm_input__
 
-- name: Set ontap_volume_object
+- name: Set __ontap_svm_input__
   ansible.builtin.set_fact:
-    ontap_volume_object: "{{ __ontap_volume_input__.ontap_info['storage/volumes'].records[0] }}"
+    ontap_svm_object: "{{ __ontap_svm_input__.ontap_info['storage/volumes'].records[0] }}"
   when:
-  - __ontap_volume_input__.ontap_info['storage/volumes'].num_records == 1
+  - __ontap_svm_input__.ontap_info['svm/svms'].num_records == 1
 
-- name: Debug ontap_volume_object
+- name: Debug ontap_svm_object
   ansible.builtin.debug:
-    msg: "{{ ontap_volume_object }}"
+    msg: "{{ ontap_svm_object }}"

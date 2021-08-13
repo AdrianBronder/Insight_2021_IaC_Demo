@@ -67,14 +67,26 @@
 ### Initiate Action
 ##############################################################
 
-- import_tasks:      ontap_volume_info.yml
+- name: Read Volume Information into 'ontap_volume_object'
+  include_tasks:      ontap_volume_info.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
   when:
     - ontap_ansiblerole_action == "info"
 
-- import_tasks:      ontap_volume_create.yml
+- name: Create Volume
+  include_tasks:      ontap_volume_create.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
   when:
     - ontap_ansiblerole_action == "create"
 
-- import_tasks:      ontap_volume_delete.yml
+- name: Delete Volume
+  include_tasks:      ontap_volume_delete.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
   when:
     - ontap_ansiblerole_action == "delete"
