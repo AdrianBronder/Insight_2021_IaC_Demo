@@ -6,5 +6,5 @@
     source_inventory:             true
   
   roles:
-#  - role: ontap_svm
+  - role: ontap_svm
   - role: ontap_volume

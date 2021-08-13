@@ -23,7 +23,7 @@
 
 - name: Set __ontap_svm_input__
   ansible.builtin.set_fact:
-    ontap_svm_object: "{{ __ontap_svm_input__.ontap_info['storage/volumes'].records[0] }}"
+    ontap_svm_object: "{{ __ontap_svm_input__.ontap_info['svm/svms'].records[0] }}"
   when:
   - __ontap_svm_input__.ontap_info['svm/svms'].num_records == 1
 
