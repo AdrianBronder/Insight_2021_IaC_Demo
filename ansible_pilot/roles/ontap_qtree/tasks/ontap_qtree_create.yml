@@ -1,0 +1,24 @@
+---
+- name: Set Connection Details
+  ansible.builtin.set_fact:
+    ontap_login: &ontap_login
+      hostname:                   "{{ ontap_hostname }}"
+      username:                   "{{ ontap_username }}"
+      password:                   "{{ ontap_password }}"
+      https:                      true
+      validate_certs:             false
+      use_rest:                   Never
+  no_log: true
+
+- name: Create Qtree
+  na_ontap_qtree:
+    state:                        present
+    name:                         "{{ ontap_qtree_name }}"
+    flexvol_name:                 "{{ ontap_volume_name }}"
+    vserver:                      "{{ ontap_svm_name }}"
+    export_policy:                "{{ ontap_qtree_object.export_policy.name              | default(omit) }}"
+    security_style:               "{{ ontap_qtree_object.security_style                  | default(omit) }}"
+    unix_permissions:             "{{ ontap_qtree_object.unix_permissions                | default(omit) }}"
+    <<: *ontap_login
+  when:
+    - ( ontap_volume_object.aggregates | length ) == 1

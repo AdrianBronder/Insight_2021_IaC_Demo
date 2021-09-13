@@ -1,0 +1,23 @@
+---
+# defaults file for ontap_qtree
+ontap_qtree_object:
+  name:
+  path:
+  security_style:
+  unix_permissions:
+  id:
+  export_policy:
+    id:
+    name:
+  user:
+    id:
+    name:
+  group:
+    id:
+    name:
+  svm:
+    name:
+    uuid:
+  volume:
+    name:
+    uuid:

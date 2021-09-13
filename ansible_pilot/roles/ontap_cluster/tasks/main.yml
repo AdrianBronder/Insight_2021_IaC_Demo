@@ -37,7 +37,7 @@
 
 - name: Source Template Information
   block:
-    - name: Merge Defaults/Vars with SVM Input
+    - name: Merge Defaults/Vars with Input
       ansible.builtin.set_fact:
         ontap_cluster_object: "{{ ontap_cluster_object | combine(__ontap_cluster_input__, recursive=True) }}"
   when:

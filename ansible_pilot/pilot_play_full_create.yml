@@ -1,0 +1,21 @@
+---
+- hosts:        "{{ ontap_cluster_name }}"
+  gather_facts: false
+  vars:
+    ontap_ansiblerole_action:    "create"
+    source_inventory:            true
+    ontap_cluster_name:          "cluster1"
+    ontap_svm_name:              "pri_svm_01"
+  
+  tasks:
+  - name: Create SVMs from Inventory
+    include_role:
+      name:                      ontap_svm
+
+  - name: Create SVM volumes from Inventory
+    include_role:
+      name:                      ontap_volume
+    vars:
+      ontap_volume_name:         item.name
+    loop:
+      - host_vars['cluster1'].svms["{{ ontap_svm_name }}"].volumes

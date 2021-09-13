@@ -10,23 +10,25 @@
       use_rest:                   Never
   no_log: true
 
-- name: Get LIF Info
+- name: Get Qtree Info
   na_ontap_rest_info:
     gather_subset:
-    - network/ip/interfaces
+    - storage/qtree
     parameters:
-      name:                       "{{ ontap_ip_interface_name }}"
+      name:                       "{{ ontap_qtree_name }}"
+      volume.name:                "{{ ontap_volume_name }}"
+      svm.name:                   "{{ ontap_svm_name }}"
     fields:
     - '*'
     <<: *ontap_login
-  register: __ontap_ip_interface_input__
+  register: __ontap_qtree_input__
 
-- name: Set __ontap_ip_interface_input__
+- name: Set ontap_qtree_object
   ansible.builtin.set_fact:
-    ontap_ip_interface_object: "{{ __ontap_ip_interface_input__.ontap_info['network/ip/interfaces'].records[0] }}"
+    ontap_qtree_object: "{{ __ontap_qtree_input__.ontap_info['storage/qtrees'].records[0] }}"
   when:
-  - __ontap_ip_interface_input__.ontap_info['network/ip/interfaces'].num_records == 1
+  - __ontap_qtree_input__.ontap_info['storage/qtrees'].num_records == 1
 
-- name: Debug ontap_ip_interface_object
+- name: Debug ontap_qtree_object
   ansible.builtin.debug:
-    msg: "{{ ontap_ip_interface_object }}"
+    msg: "{{ ontap_qtree_object }}"
