@@ -25,7 +25,7 @@
   ansible.builtin.set_fact:
     ontap_svm_object: "{{ __ontap_ip_interface_input__.ontap_info['network/ip/interfaces'].records[0] }}"
   when:
-  - __ontap_s__ontap_ip_interface_input__vm_input__.ontap_info['network/ip/interfaces'].num_records == 1
+  - __ontap_ip_interface_input__.ontap_info['network/ip/interfaces'].num_records == 1
 
 - name: Debug ontap_ip_interface_object
   ansible.builtin.debug:
