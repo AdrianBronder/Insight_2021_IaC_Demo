@@ -10,7 +10,8 @@ ntp_servers:
 nodes:
   -
 svms:
-  - name:                 pri_svm_01
+  pri_svm_01:
+    name:                 pri_svm_01
     language:             c.UTF-8
     comment:              this is my pilot
     ipspace:
@@ -47,7 +48,8 @@ svms:
           failover:       broadcast_domain_only
           auto_revert:    true
     volumes:
-      - name:             pri_svm_01_cifs_001
+      pri_svm_01_cifs_001:
+        name:             pri_svm_01_cifs_001
         type:             rw
         size:             1073741824
         style:            flexvol
@@ -101,7 +103,8 @@ svms:
           name:           pri_svm_01
           uuid:
         qtrees: 
-          - name:             pri_svm_01_qt001
+          pri_svm_01_qt001:
+            name:             pri_svm_01_qt001
             path:
             security_style:   ntfs
             unix_permissions:
@@ -121,7 +124,8 @@ svms:
             volume:
               name:           pri_svm_01_cifs_001
               uuid:
-          - name:             pri_svm_01_qt002
+          pri_svm_01_qt002:
+            name:             pri_svm_01_qt002
             path:
             security_style:   ntfs
             unix_permissions:
@@ -141,7 +145,8 @@ svms:
             volume:
               name:           pri_svm_01_cifs_001
               uuid:
-          - name:             pri_svm_01_qt003
+          pri_svm_01_qt003:
+            name:             pri_svm_01_qt003
             path:
             security_style:   ntfs
             unix_permissions:
@@ -161,7 +166,8 @@ svms:
             volume:
               name:           pri_svm_01_cifs_001
               uuid:
-      - name:             pri_svm_01_cifs_002
+      pri_svm_01_cifs_002:
+        name:             pri_svm_01_cifs_002
         type:             rw
         size:             1073741824
         style:            flexvol
@@ -214,7 +220,8 @@ svms:
         svm:
           name:           pri_svm_01
           uuid:
-      - name:             pri_svm_01_cifs_003
+      pri_svm_01_cifs_003:
+        name:             pri_svm_01_cifs_003
         type:             rw
         size:             1073741824
         style:            flexvol

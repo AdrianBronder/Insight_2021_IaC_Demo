@@ -4,7 +4,6 @@
   vars:
     ontap_ansiblerole_action:    "create"
     source_inventory:            true
-    ontap_cluster_name:          "cluster1"
     ontap_svm_name:              "pri_svm_01"
   
   tasks:
