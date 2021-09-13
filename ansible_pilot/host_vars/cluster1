@@ -101,9 +101,9 @@ svms:
           name:           pri_svm_01
           uuid:
         qtrees: 
-          - name:            pri_svm_01_qt001
+          - name:             pri_svm_01_qt001
             path:
-            security_style:  ntfs
+            security_style:   ntfs
             unix_permissions:
             id:
             export_policy:
@@ -115,15 +115,15 @@ svms:
             group:
               id:
               name:
-            svm:              pri_svm_01
-              name:
+            svm:
+              name:           pri_svm_01
               uuid:
             volume:
               name:           pri_svm_01_cifs_001
               uuid:
-          - name:            pri_svm_01_qt002
+          - name:             pri_svm_01_qt002
             path:
-            security_style:  ntfs
+            security_style:   ntfs
             unix_permissions:
             id:
             export_policy:
@@ -135,15 +135,15 @@ svms:
             group:
               id:
               name:
-            svm:              pri_svm_01
-              name:
+            svm:
+              name:           pri_svm_01
               uuid:
             volume:
               name:           pri_svm_01_cifs_001
               uuid:
-          - name:            pri_svm_01_qt003
+          - name:             pri_svm_01_qt003
             path:
-            security_style:  ntfs
+            security_style:   ntfs
             unix_permissions:
             id:
             export_policy:
@@ -155,8 +155,8 @@ svms:
             group:
               id:
               name:
-            svm:              pri_svm_01
-              name:
+            svm:
+              name:           pri_svm_01
               uuid:
             volume:
               name:           pri_svm_01_cifs_001

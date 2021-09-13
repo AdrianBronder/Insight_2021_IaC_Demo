@@ -18,4 +18,4 @@
     vars:
       ontap_volume_name:         item.name
     loop:
-      - host_vars['cluster1'].svms["{{ ontap_svm_name }}"].volumes
+      - host_vars['cluster1'].svms[{{ ontap_svm_name }}].volumes
