@@ -185,3 +185,40 @@
           type:                  "text"
           variable:              "ontap_volume_name"
       <<: *input
+
+  - name: Info Job Template for reading an SVM configuration
+    tower_job_template:
+      state:                     present
+      name:                      "Basic SVM Info"
+      job_type:                  "run"
+      inventory:                 "LoD Inventory"
+      project:                   "LoD Demo - Ansible Pilot"
+      playbook:                  "ansible_pilot/pilot_play_basic_info.yml"
+      credential:                "ONTAP Default Credentials"
+      survey_enabled:            "yes"
+      survey_spec:
+        name:                    "Default Survey for 'Basic SVM Info'"
+        description:             ""
+        spec:
+#        - question_name:         "Action"
+#          description:           "Describing the action to be performed"
+#          required:              True
+#          type:                  "multiplechoice"
+#          choices:               "create\ndelete"
+#          variable:              "ontap_ansiblerole_action"
+        - question_name:         "Cluster Name"
+          description:           "ONTAP Cluster to act on"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_cluster_name"
+        - question_name:         "SVM Name"
+          description:           "SVM to act on"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_svm_name"
+        - question_name:         "Volume Name"
+          description:           "Volume to act on"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_volume_name"
+      <<: *input
