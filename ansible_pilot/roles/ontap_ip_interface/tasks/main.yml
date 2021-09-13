@@ -1,5 +1,8 @@
 ---
-# tasks file for ontap_ip_interface
+##############################################################
+### Run Pre-steps
+##############################################################
+
 - name: Validate Mandatory Input
   fail:
     msg:
@@ -9,6 +12,15 @@
     - ((ontap_ip_interface_name is undefined or
       ontap_svm_name is undefined) and
       __ontap_ip_interface_input__ is undefined)
+  tags:
+    - always
+
+- name: Validate Action
+  fail:
+    msg:
+      - "You must pass the 'ontap_ansiblerole_action' variable"
+  when:
+    - ontap_ansiblerole_action is undefined
   tags:
     - always
 
@@ -41,8 +53,9 @@
         "{{ ontap_svm_object.ip_interfaces | list}}"
       when:
         - item.name == ontap_ip_interface_name
-  tags:
-    - source_inventory
+  when:
+    - source_inventory is defined
+    - source_inventory == true
 # FIXME - Additioanl condition required to check, if SVM has been found in inventory
 
 - name: Source Template Information
@@ -53,30 +66,32 @@
   when:
     - __ontap_ip_interface_input__ is defined
 
-- name: Create IP Interface
-  na_ontap_interface:
-    state:                        present
-    interface_name:               "{{ ontap_ip_interface_object.name }}"
-    vserver:                      "{{ ontap_ip_interface_object.svm.name }}"
-    address:                      "{{ ontap_ip_interface_object.ip.address              | default(omit) }}"
-    netmask:                      "{{ ontap_ip_interface_object.ip.netmask              | default(omit) }}"
-    service_policy:               "{{ ontap_ip_interface_object.service_policy.name     | default(omit) }}"
-    home_node:                    "{{ ontap_ip_interface_object.location.home_node.name | default(omit) }}"
-    home_port:                    "{{ ontap_ip_interface_object.location.home_port.name | default(omit) }}"
-# FIXME - This one is ugly, but "role" must be provided as long as we have to use ZAPI here
-    role:                         "data"
-    <<: *ontap_login
-  tags:
-    - create_all
-    - create_ontap_ip_interface
 
-- name: Delete IP Interface
-  na_ontap_interface:
-    state:                        absent
-    interface_name:               "{{ ontap_ip_interface_object.name }}"
-    vserver:                      "{{ ontap_ip_interface_object.svm.name }}"
-    <<: *ontap_login
-  tags:
-    - never
-    - delete_all
-    - delete_ontap_ip_interface
+
+##############################################################
+### Initiate Action
+##############################################################
+
+- name: Read LIF Information into 'ontap_ip_interface_object'
+  include_tasks:      ontap_ip_interface_info.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
+  when:
+    - ontap_ansiblerole_action == "info"
+
+- name: Create LIF
+  include_tasks:      ontap_ip_interface_create.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
+  when:
+    - ontap_ansiblerole_action == "create"
+
+- name: Delete LIF
+  include_tasks:      ontap_ip_interface_delete.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
+  when:
+    - ontap_ansiblerole_action == "delete"

@@ -216,6 +216,11 @@
           required:              True
           type:                  "text"
           variable:              "ontap_svm_name"
+        - question_name:         "Management Interface Name"
+          description:           "IP Interface to act on"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_ip_interface_name"
         - question_name:         "Volume Name"
           description:           "Volume to act on"
           required:              True

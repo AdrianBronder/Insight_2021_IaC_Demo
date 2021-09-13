@@ -1,0 +1,32 @@
+---
+- name: Set Connection Details
+  ansible.builtin.set_fact:
+    ontap_login: &ontap_login
+      hostname:                   "{{ ontap_hostname }}"
+      username:                   "{{ ontap_username }}"
+      password:                   "{{ ontap_password }}"
+      https:                      true
+      validate_certs:             false
+      use_rest:                   Never
+  no_log: true
+
+- name: Get LIF Info
+  na_ontap_rest_info:
+    gather_subset:
+    - network/ip/interfaces
+    parameters:
+      name:                       "{{ ontap_ip_interface_name }}"
+    fields:
+    - '*'
+    <<: *ontap_login
+  register: __ontap_ip_interface_input__
+
+- name: Set __ontap_ip_interface_input__
+  ansible.builtin.set_fact:
+    ontap_svm_object: "{{ __ontap_ip_interface_input__.ontap_info['network/ip/interfaces'].records[0] }}"
+  when:
+  - __ontap_s__ontap_ip_interface_input__vm_input__.ontap_info['network/ip/interfaces'].num_records == 1
+
+- name: Debug ontap_ip_interface_object
+  ansible.builtin.debug:
+    msg: "{{ ontap_ip_interface_object }}"

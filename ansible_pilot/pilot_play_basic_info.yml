@@ -7,4 +7,5 @@
   
   roles:
   - role: ontap_svm
+  - role: ontap_ip_interface
   - role: ontap_volume
