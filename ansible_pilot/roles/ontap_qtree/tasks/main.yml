@@ -34,33 +34,34 @@
   block:
     - name: Find SVM
       ansible.builtin.set_fact:
-        ontap_svm_object: "{{ item }}"
+        ontap_svm_object: "{{ item.value }}"
       loop:
-        "{{ svms | list }}"
+        "{{ svms | dict2items }}"
       loop_control:
-        label: "{{ item.name }}"
+        label: "{{ item.key }}"
       when:
-        - item.name == ontap_svm_name
+        - item.key == ontap_svm_name
     - name: Find Volume
       ansible.builtin.set_fact:
-        ontap_volume_object: "{{ item }}"
+        ontap_volume_object: "{{ item.value }}"
       loop:
-        "{{ ontap_svm_object.volumes | list}}"
+        "{{ ontap_svm_object.volumes | dict2items }}"
       loop_control:
-        label: "{{ item.name }}"
+        label: "{{ item.key }}"
       when:
-        - item.name == ontap_volume_name
+        - item.key == ontap_volume_name
     - name: Find Qtree
       ansible.builtin.set_fact:
-        ontap_qtree_object: "{{ item }}"
+        ontap_qtree_object: "{{ item.value }}"
       loop:
-        "{{ ontap_volume_object.qtrees | list}}"
+        "{{ ontap_volume_object.qtrees | dict2items }}"
       loop_control:
-        label: "{{ item.name }}"
+        label: "{{ item.key }}"
       when:
-        - item.name == ontap_qtree_name
-  tags:
-    - source_inventory
+        - item.key == ontap_qtree_name
+  when:
+    - source_inventory is defined
+    - source_inventory == true
 # FIXME - Additioanl condition required to check, if SVM has been found in inventory
 
 - name: Source Template Information
@@ -69,7 +70,7 @@
       ansible.builtin.set_fact:
         ontap_volume_object: "{{ ontap_qtree_object | combine(__ontap_qtree_input__, recursive=True) }}"
   when:
-    - __ontap_volume_input__ is defined
+    - __ontap_qtree_input__ is defined
 
 
 

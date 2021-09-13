@@ -31,7 +31,8 @@ svms:
     snapshot_policy:
       name:               none
     ip_interfaces:
-      - name:             pri_svm_01_mgmt01
+      pri_svm_01_mgmt01:
+        name:             pri_svm_01_mgmt01
         svm:
           name:           pri_svm_01
         ip:

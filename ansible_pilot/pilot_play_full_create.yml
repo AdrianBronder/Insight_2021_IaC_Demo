@@ -15,6 +15,6 @@
     include_role:
       name:                      ontap_volume
     vars:
-      ontap_volume_name:         item.name
+      ontap_volume_name:         item.key
     loop:
-      - host_vars['cluster1'].svms[{{ ontap_svm_name }}].volumes
+      - host_vars[ontap_cluster_name].svms[{{ ontap_svm_name }}].volumes

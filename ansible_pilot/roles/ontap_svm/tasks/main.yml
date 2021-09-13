@@ -41,13 +41,13 @@
   block:
     - name: Find SVM
       ansible.builtin.set_fact:
-        ontap_svm_object: "{{ item | combine(item, recursive=True) }}"
+        ontap_svm_object: "{{ item.value }}"
       loop:
-        "{{ svms | list }}"
+        "{{ svms | dict2items }}"
       loop_control:
-        label: "{{ item.name }}"
+        label: "{{ item.key }}"
       when:
-        - item.name == ontap_svm_name
+        - item.key == ontap_svm_name
   when:
     - source_inventory is defined
     - source_inventory == true
