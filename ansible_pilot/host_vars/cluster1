@@ -10,8 +10,7 @@ ntp_servers:
 nodes:
   -
 svms:
-  pri_svm_01:
-    name:                 pri_svm_01
+  - name:                 pri_svm_01
     language:             c.UTF-8
     comment:              this is my pilot
     ipspace:
@@ -31,8 +30,7 @@ svms:
     snapshot_policy:
       name:               none
     ip_interfaces:
-      pri_svm_01_mgmt01:
-        name:             pri_svm_01_mgmt01
+      - name:             pri_svm_01_mgmt01
         svm:
           name:           pri_svm_01
         ip:
@@ -49,8 +47,7 @@ svms:
           failover:       broadcast_domain_only
           auto_revert:    true
     volumes:
-      pri_svm_01_cifs_001:
-        name:             pri_svm_01_cifs_001
+      - name:             pri_svm_01_cifs_001
         type:             rw
         size:             1073741824
         style:            flexvol
@@ -104,8 +101,7 @@ svms:
           name:           pri_svm_01
           uuid:
         qtrees: 
-          pri_svm_01_qt001:
-            name:             pri_svm_01_qt001
+          - name:             cifs_001_qt001
             path:
             security_style:   ntfs
             unix_permissions:
@@ -125,8 +121,7 @@ svms:
             volume:
               name:           pri_svm_01_cifs_001
               uuid:
-          pri_svm_01_qt002:
-            name:             pri_svm_01_qt002
+          - name:             cifs_001_qt002
             path:
             security_style:   ntfs
             unix_permissions:
@@ -146,8 +141,7 @@ svms:
             volume:
               name:           pri_svm_01_cifs_001
               uuid:
-          pri_svm_01_qt003:
-            name:             pri_svm_01_qt003
+          - name:             cifs_001_qt003
             path:
             security_style:   ntfs
             unix_permissions:
@@ -167,8 +161,7 @@ svms:
             volume:
               name:           pri_svm_01_cifs_001
               uuid:
-      pri_svm_01_cifs_002:
-        name:             pri_svm_01_cifs_002
+      - name:             pri_svm_01_cifs_002
         type:             rw
         size:             1073741824
         style:            flexvol
@@ -221,8 +214,68 @@ svms:
         svm:
           name:           pri_svm_01
           uuid:
-      pri_svm_01_cifs_003:
-        name:             pri_svm_01_cifs_003
+        qtrees: 
+          - name:             cifs_002_qt001
+            path:
+            security_style:   ntfs
+            unix_permissions:
+            id:
+            export_policy:
+              id:
+              name:
+            user:
+              id:
+              name:
+            group:
+              id:
+              name:
+            svm:
+              name:           pri_svm_01
+              uuid:
+            volume:
+              name:           pri_svm_01_cifs_002
+              uuid:
+          - name:             cifs_002_qt002
+            path:
+            security_style:   ntfs
+            unix_permissions:
+            id:
+            export_policy:
+              id:
+              name:
+            user:
+              id:
+              name:
+            group:
+              id:
+              name:
+            svm:
+              name:           pri_svm_01
+              uuid:
+            volume:
+              name:           pri_svm_01_cifs_002
+              uuid:
+          - name:             cifs_002_qt003
+            path:
+            security_style:   ntfs
+            unix_permissions:
+            id:
+            export_policy:
+              id:
+              name:
+            user:
+              id:
+              name:
+            group:
+              id:
+              name:
+            svm:
+              name:           pri_svm_01
+              uuid:
+            volume:
+              name:           pri_svm_01_cifs_002
+              uuid:
+      - name:             pri_svm_01_cifs_003
         type:             rw
         size:             1073741824
         style:            flexvol
@@ -275,3 +328,64 @@ svms:
         svm:
           name:           pri_svm_01
           uuid:
+        qtrees: 
+          - name:             cifs_003_qt001
+            path:
+            security_style:   ntfs
+            unix_permissions:
+            id:
+            export_policy:
+              id:
+              name:
+            user:
+              id:
+              name:
+            group:
+              id:
+              name:
+            svm:
+              name:           pri_svm_01
+              uuid:
+            volume:
+              name:           pri_svm_01_cifs_003
+              uuid:
+          - name:             cifs_003_qt002
+            path:
+            security_style:   ntfs
+            unix_permissions:
+            id:
+            export_policy:
+              id:
+              name:
+            user:
+              id:
+              name:
+            group:
+              id:
+              name:
+            svm:
+              name:           pri_svm_01
+              uuid:
+            volume:
+              name:           pri_svm_01_cifs_003
+              uuid:
+          - name:             cifs_003_qt003
+            path:
+            security_style:   ntfs
+            unix_permissions:
+            id:
+            export_policy:
+              id:
+              name:
+            user:
+              id:
+              name:
+            group:
+              id:
+              name:
+            svm:
+              name:           pri_svm_01
+              uuid:
+            volume:
+              name:           pri_svm_01_cifs_003
+              uuid:

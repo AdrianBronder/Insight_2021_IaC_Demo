@@ -34,31 +34,31 @@
   block:
     - name: Find SVM
       ansible.builtin.set_fact:
-        ontap_svm_object: "{{ item.value }}"
+        ontap_svm_object: "{{ item }}"
       loop:
-        "{{ svms | dict2items }}"
+        "{{ svms | list }}"
       loop_control:
-        label: "{{ item.key }}"
+        label: "{{ item.name }}"
       when:
-        - item.key == ontap_svm_name
+        - item.name == ontap_svm_name
     - name: Find Volume
       ansible.builtin.set_fact:
-        ontap_volume_object: "{{ item.value }}"
+        ontap_volume_object: "{{ item }}"
       loop:
-        "{{ ontap_svm_object.volumes | dict2items }}"
+        "{{ ontap_svm_object.volumes | list }}"
       loop_control:
-        label: "{{ item.key }}"
+        label: "{{ item.name }}"
       when:
-        - item.key == ontap_volume_name
+        - item.name == ontap_volume_name
     - name: Find Qtree
       ansible.builtin.set_fact:
-        ontap_qtree_object: "{{ item.value }}"
+        ontap_qtree_object: "{{ item }}"
       loop:
-        "{{ ontap_volume_object.qtrees | dict2items }}"
+        "{{ ontap_volume_object.qtrees | list }}"
       loop_control:
-        label: "{{ item.key }}"
+        label: "{{ item.name }}"
       when:
-        - item.key == ontap_qtree_name
+        - item.name == ontap_qtree_name
   when:
     - source_inventory is defined
     - source_inventory == true

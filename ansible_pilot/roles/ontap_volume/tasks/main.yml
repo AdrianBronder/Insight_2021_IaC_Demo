@@ -33,22 +33,22 @@
   block:
     - name: Find SVM
       ansible.builtin.set_fact:
-        ontap_svm_object: "{{ item.value }}"
+        ontap_svm_object: "{{ item }}"
       loop:
-        "{{ svms | dict2items }}"
+        "{{ svms | list }}"
       loop_control:
-        label: "{{ item.key }}"
+        label: "{{ item.name }}"
       when:
-        - item.key == ontap_svm_name
+        - item.name == ontap_svm_name
     - name: Find Volume
       ansible.builtin.set_fact:
-        ontap_volume_object: "{{ item.value }}"
+        ontap_volume_object: "{{ item }}"
       loop:
-        "{{ ontap_svm_object.volumes | dict2items }}"
+        "{{ ontap_svm_object.volumes | list }}"
       loop_control:
-        label: "{{ item.key }}"
+        label: "{{ item.name }}"
       when:
-        - item.key == ontap_volume_name
+        - item.name == ontap_volume_name
   when:
     - source_inventory is defined
     - source_inventory == true

@@ -15,6 +15,20 @@
     include_role:
       name:                      ontap_volume
     vars:
-      ontap_volume_name:         item.key
+      __ontap_volume_input__:    "{{ item.value }}"
+      ontap_volume_name:         "{{ item.value.name }}"
     loop:
-      - host_vars[ontap_cluster_name].svms[{{ ontap_svm_name }}].volumes
+      "{{ hostvars[ontap_cluster_name].svms[ontap_svm_name].volumes | list }}"
+    loop_control:
+      label: "{{ item.key }}"
+
+  - name: Create SVM qtrees from Inventory
+    include_role:
+      name:                      ontap_qtree
+    vars:
+      __ontap_qtree_input__:    "{{ item.value }}"
+      ontap_qtree_name:         "{{ item.value.name }}"
+    loop:
+      "{{ hostvars[ontap_cluster_name].svms[ontap_svm_name].volumes | list | subelements('qtrees') }}"
+    loop_control:
+      label: "{{ item.key }}"
