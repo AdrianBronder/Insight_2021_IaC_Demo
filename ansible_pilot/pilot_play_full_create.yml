@@ -11,24 +11,47 @@
     include_role:
       name:                      ontap_svm
 
-  - name: Create SVM volumes from Inventory
+  - name: Get volumes to be created
+    ansible.builtin.set_fact:
+      task_vol_list:             "{{ item.volumes }}"
+    loop:
+      "{{ hostvars[ontap_cluster_name].svms | list }}"
+    loop_control:
+      label: "{{ item.name }}"
+    when:
+      - item.name == ontap_svm_name
+
+  - name: Create SVM volumes
     include_role:
       name:                      ontap_volume
     vars:
-      __ontap_volume_input__:    "{{ item.value }}"
-      ontap_volume_name:         "{{ item.value.name }}"
+      __ontap_volume_input__:    "{{ item }}"
+      ontap_volume_name:         "{{ item.name }}"
     loop:
-      "{{ hostvars[ontap_cluster_name].svms[ontap_svm_name].volumes | list }}"
+      "{{ task_vol_list | list }}"
     loop_control:
-      label: "{{ item.key }}"
+      label: "{{ item.name }}"
+
+  - name: Get Qtrees to be created
+    ansible.builtin.set_fact:
+      task_qt_list:              "{{ task_qt_list |
+                                    default ([]) + item.1.qtrees
+                                    }}"
+    loop:
+      "{{ q('subelements', hostvars[ontap_cluster_name].svms, 'volumes') }}"
+    loop_control:
+      label: "{{ item.0.name }}:{{ item.1.name }}"
+    when:
+      - item.0.name == ontap_svm_name
 
   - name: Create SVM qtrees from Inventory
     include_role:
       name:                      ontap_qtree
     vars:
-      __ontap_qtree_input__:    "{{ item.value }}"
-      ontap_qtree_name:         "{{ item.value.name }}"
+      __ontap_qtree_input__:    "{{ item }}"
+      ontap_volume_name:        "{{ item.volume.name }}"
+      ontap_qtree_name:         "{{ item.name }}"
     loop:
-      "{{ hostvars[ontap_cluster_name].svms[ontap_svm_name].volumes | list | subelements('qtrees') }}"
+      "{{ task_qt_list | list }}"
     loop_control:
-      label: "{{ item.key }}"
+      label: "{{ item.name }}"

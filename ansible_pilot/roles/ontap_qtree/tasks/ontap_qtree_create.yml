@@ -20,5 +20,3 @@
     security_style:               "{{ ontap_qtree_object.security_style                  | default(omit) }}"
     unix_permissions:             "{{ ontap_qtree_object.unix_permissions                | default(omit) }}"
     <<: *ontap_login
-  when:
-    - ( ontap_volume_object.aggregates | length ) == 1

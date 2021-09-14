@@ -41,22 +41,24 @@
   block:
     - name: Find SVM
       ansible.builtin.set_fact:
-        ontap_svm_object: "{{ item }}"
+        ontap_svm_object: "{{ svm_item }}"
       loop:
         "{{ svms | list }}"
       loop_control:
-        label: "{{ item.name }}"
+        label:    "{{ svm_item.name }}"
+        loop_var: svm_item
       when:
-        - item.name == ontap_svm_name
+        - svm_item.name == ontap_svm_name
     - name: Find IP Interface
       ansible.builtin.set_fact:
-        ontap_ip_interface_object: "{{ item }}"
+        ontap_ip_interface_object: "{{ ip_interface_item }}"
       loop:
         "{{ ontap_svm_object.ip_interfaces | list }}"
       loop_control:
-        label: "{{ item.name }}"
+        label:    "{{ ip_interface_item.name }}"
+        loop_var: ip_interface_item
       when:
-        - item.name == ontap_ip_interface_name
+        - ip_interface_item.name == ontap_ip_interface_name
   when:
     - source_inventory is defined
     - source_inventory == true
