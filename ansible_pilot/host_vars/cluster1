@@ -49,7 +49,7 @@ svms:
     volumes:
       - name:             pri_svm_01_cifs_001
         type:             rw
-        size:             1073741824
+        size:             10737418240
         style:            flexvol
         comment:          
         aggregates:       
@@ -163,7 +163,7 @@ svms:
               uuid:
       - name:             pri_svm_01_cifs_002
         type:             rw
-        size:             1073741824
+        size:             10737418240
         style:            flexvol
         comment:          
         aggregates:       
@@ -277,7 +277,7 @@ svms:
               uuid:
       - name:             pri_svm_01_cifs_003
         type:             rw
-        size:             1073741824
+        size:             10737418240
         style:            flexvol
         comment:          
         aggregates:       
@@ -389,3 +389,60 @@ svms:
             volume:
               name:           pri_svm_01_cifs_003
               uuid:
+    quota_policies:
+      - name:                 default
+        quota_rules:
+          - volume:
+              name:           pri_svm_01_cifs_001
+            files:
+              hard_limit:     1000
+              soft_limit:     800
+            users:
+              - name:
+            uuid:
+            space:
+              hard_limit:     1073741824
+              soft_limit:     858993460
+            qtree:
+              name:           cifs_001_qt001
+              id:
+            user_mapping:
+            type:             tree
+            svm:
+              name:           pri_svm_01_cifs_001
+          - volume:
+              name:           pri_svm_01_cifs_001
+            files:
+              hard_limit:     1000
+              soft_limit:     800
+            users:
+              - name:
+            uuid:
+            space:
+              hard_limit:     1073741824
+              soft_limit:     858993460
+            qtree:
+              name:           cifs_001_qt002
+              id:
+            user_mapping:
+            type:             tree
+            svm:
+              name:           pri_svm_01_cifs_001
+          - volume:
+              name:           pri_svm_01_cifs_001
+            files:
+              hard_limit:     1000
+              soft_limit:     800
+            users:
+              - name:
+            uuid:
+            space:
+              hard_limit:     1073741824
+              soft_limit:     858993460
+            qtree:
+              name:           cifs_001_qt003
+              id:
+            user_mapping:
+            type:             tree
+            svm:
+              name:           pri_svm_01_cifs_001

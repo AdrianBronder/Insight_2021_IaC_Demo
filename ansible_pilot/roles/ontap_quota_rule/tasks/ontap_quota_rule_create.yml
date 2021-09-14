@@ -1,0 +1,62 @@
+---
+- name: Set Connection Details
+  ansible.builtin.set_fact:
+    ontap_login: &ontap_login
+      hostname:                   "{{ ontap_hostname }}"
+      username:                   "{{ ontap_username }}"
+      password:                   "{{ ontap_password }}"
+      https:                      true
+      validate_certs:             false
+      use_rest:                   Never
+  no_log: true
+
+- name: Create Tree Quota
+  na_ontap_quotas:
+    state:                        present
+    vserver:                      "{{ ontap_quota_rule_object.svm.name }}"
+    type:                         "{{ ontap_quota_rule_object.type }}"
+    volume:                       "{{ ontap_quota_rule_object.volume.name }}"
+    quota_target:                 "{{ ontap_quota_rule_object.qtree.name }}"
+# FIXME - Policy is always "default". ONTAP REST currently does not allow managing custom quota policies
+    policy:                       default
+    file_limit:                   "{{ ontap_quota_rule_object.files.hard_limit |   default(omit) }}"
+    soft_file_limit:              "{{ ontap_quota_rule_object.files.soft_limit |   default(omit) }}"
+    disk_limit:                   "{{ ontap_quota_rule_object.space.hard_limit |   default(omit) }}"
+    disk_soft_limit:              "{{ ontap_quota_rule_object.space.soft_limit |   default(omit) }}"
+    activate_quota_on_change:     resize
+    <<: *ontap_login
+  when:
+    - ontap_quota_rule_object.type == "tree"
+- name: Create User Quota
+    state:                        present
+    vserver:                      "{{ ontap_quota_rule_object.svm.name }}"
+    type:                         "{{ ontap_quota_rule_object.type }}"
+    volume:                       "{{ ontap_quota_rule_object.volume.name }}"
+# FIXME - Not evaluated with users
+    quota_target:                 "{{ ontap_quota_rule_object.users.name }}"
+# FIXME - Policy is always "default". ONTAP REST currently does not allow managing custom quota policies
+    policy:                       default
+    file_limit:                   "{{ ontap_quota_rule_object.files.hard_limit |   default(omit) }}"
+    soft_file_limit:              "{{ ontap_quota_rule_object.files.soft_limit |   default(omit) }}"
+    disk_limit:                   "{{ ontap_quota_rule_object.space.hard_limit |   default(omit) }}"
+    disk_soft_limit:              "{{ ontap_quota_rule_object.space.soft_limit |   default(omit) }}"
+    activate_quota_on_change:     resize
+    <<: *ontap_login
+  when:
+    - ontap_quota_rule_object.type == "user"
+- name: Create Group Quota
+    state:                        present
+    vserver:                      "{{ ontap_quota_rule_object.svm.name }}"
+    type:                         "{{ ontap_quota_rule_object.type }}"
+    volume:                       "{{ ontap_quota_rule_object.volume.name }}"
+    quota_target:                 "{{ ontap_quota_rule_object.group.name }}"
+# FIXME - Policy is always "default". ONTAP REST currently does not allow managing custom quota policies
+    policy:                       default
+    file_limit:                   "{{ ontap_quota_rule_object.files.hard_limit |   default(omit) }}"
+    soft_file_limit:              "{{ ontap_quota_rule_object.files.soft_limit |   default(omit) }}"
+    disk_limit:                   "{{ ontap_quota_rule_object.space.hard_limit |   default(omit) }}"
+    disk_soft_limit:              "{{ ontap_quota_rule_object.space.soft_limit |   default(omit) }}"
+    activate_quota_on_change:     resize
+    <<: *ontap_login
+  when:
+    - ontap_quota_rule_object.type == "group"

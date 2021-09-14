@@ -10,6 +10,8 @@
   - name: Create SVMs from Inventory
     include_role:
       name:                      ontap_svm
+    vars:
+      ontap_ip_interface_name:   "pri_svm_01_mgmt01"
 
   - name: Get volumes to be created
     ansible.builtin.set_fact:
@@ -55,3 +57,28 @@
       "{{ task_qt_list | list }}"
     loop_control:
       label: "{{ item.name }}"
+
+  - name: Get quotas to be created
+    ansible.builtin.set_fact:
+      task_quota_list:          "{{ item.[0].quota_rules }}"
+    loop:
+      "{{ hostvars[ontap_cluster_name].svms | list }}"
+    loop_control:
+      label: "{{ item.name }}"
+    when:
+      - item.name == ontap_svm_name
+
+  - name: Create SVM quotas
+    include_role:
+      name:                      ontap_quota_rule
+    vars:
+      __ontap_quota_rule_input__:    "{{ item }}"
+      ontap_quota_rule_type:         "{{ item.type }}"
+      ontap_quota_rule_volume:       "{{ item.volume.name }}"
+      ontap_quota_rule_qtree:        "{{ item.qtree.name }}"
+      ontap_quota_rule_users:        "{{ item.users }}"
+      ontap_quota_rule_group:        "{{ item.group.name }}"
+    loop:
+      "{{ task_quota_list | list }}"
+    loop_control:
+      label: "{{ item }}"

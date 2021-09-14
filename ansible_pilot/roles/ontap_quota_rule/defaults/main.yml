@@ -1,0 +1,21 @@
+---
+# defaults file for ontap_quota_rule
+ontap_quota_rule_object:
+  volume:
+    name:
+  files:
+    hard_limit:
+    soft_limit:
+  users:
+    - name:
+  uuid:
+  space:
+    hard_limit:
+    soft_limit:
+  qtree:
+    name:
+    id:
+  user_mapping:
+  type:
+  svm:
+    name:

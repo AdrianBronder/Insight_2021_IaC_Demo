@@ -1,0 +1,36 @@
+---
+- name: Set Connection Details
+  ansible.builtin.set_fact:
+    ontap_login: &ontap_login
+      hostname:                   "{{ ontap_hostname }}"
+      username:                   "{{ ontap_username }}"
+      password:                   "{{ ontap_password }}"
+      https:                      true
+      validate_certs:             false
+      use_rest:                   Never
+  no_log: true
+
+- name: Get LIF Info
+  na_ontap_rest_info:
+    gather_subset:
+    - network/ip/interfaces
+    parameters:
+      volume.name:                "{{ ontap_quota_rule_volume }}"
+      type:                       "{{ ontap_quota_rule_type }}"
+      qtree.name:                 "{{ ontap_quota_rule_qtree | default(omit) }}"
+      users.name:                 "{{ ontap_quota_rule_users | default(omit) }}"
+      group.name:                 "{{ ontap_quota_rule_group | default(omit) }}"
+    fields:
+    - '*'
+    <<: *ontap_login
+  register: __ontap_quota_rule_input__
+
+- name: Set __ontap_quota_rule_input__
+  ansible.builtin.set_fact:
+    ontap_quota_rule_object: "{{ __ontap_quota_rule_input__.ontap_info['storage/quota/rules'].records[0] }}"
+  when:
+  - __ontap_quota_rule_input__.ontap_info['storage/quota/rules'].num_records == 1
+
+- name: Debug ontap_quota_rule_object
+  ansible.builtin.debug:
+    msg: "{{ ontap_quota_rule_object }}"

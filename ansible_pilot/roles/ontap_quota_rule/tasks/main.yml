@@ -1,0 +1,117 @@
+---
+##############################################################
+### Run Pre-steps
+##############################################################
+
+- name: Validate Mandatory Input
+  fail:
+    msg:
+      - "You must pass the 'ontap_quota_rule_name' and 'ontap_svm_name'"
+      - "or the '__ontap_quota_rule_input__' variable"
+  when:
+    - ((ontap_quota_rule_name is undefined or
+      ontap_svm_name is undefined) and
+      __ontap_quota_rule_input__ is undefined)
+  tags:
+    - always
+
+- name: Validate Action
+  fail:
+    msg:
+      - "You must pass the 'ontap_ansiblerole_action' variable"
+  when:
+    - ontap_ansiblerole_action is undefined
+  tags:
+    - always
+
+- name: Set Connection Details
+  ansible.builtin.set_fact:
+    ontap_login: &ontap_login
+      hostname:                   "{{ ontap_hostname }}"
+      username:                   "{{ ontap_username }}"
+      password:                   "{{ ontap_password }}"
+      https:                      true
+      validate_certs:             false
+      use_rest:                   Never
+  no_log: true
+  tags:
+    - always
+
+- name: Source Inventory Information
+  block:
+    - name: Find SVM
+      ansible.builtin.set_fact:
+        ontap_svm_object: "{{ svm_item }}"
+      loop:
+        "{{ svms | list }}"
+      loop_control:
+        label:    "{{ svm_item.name }}"
+        loop_var: svm_item
+      when:
+        - svm_item.name == ontap_svm_name
+# FIXME - Policy is always "default". ONTAP REST currently does not allow managing custom quota policies
+    - name: Find Quota Policy
+      ansible.builtin.set_fact:
+        ontap_quota_policy_object: "default"
+        "{{ ontap_svm_object.quota_policies | list }}"
+      loop_control:
+        label:    "{{ quota_policy_item.name }}"
+        loop_var: quota_policy_item
+      when:
+        - quota_policy_item.name == "default"
+# FIXME - Not sure how to fix... There is simply no descriptive identifier, that you can set (ID or Name)
+    - name: Find Quota Rule
+      ansible.builtin.set_fact:
+        ontap_quota_rule_object: "{{ quota_rule_item }}"
+      loop:
+        "{{ ontap_quota_policy_object.quota_rules | list }}"
+      loop_control:
+#        label:    "{{ quota_rule_item.name }}"
+        loop_var: quota_rule_item
+      when:
+        - quota_rule_item.volume == ontap_quota_rule_volume
+        - quota_rule_item.qtree == ontap_quota_rule_qtree
+        - quota_rule_item.user == ontap_quota_rule_user
+        - quota_rule_item.group == ontap_quota_rule_group
+  when:
+    - source_inventory is defined
+    - source_inventory == true
+# FIXME - Additioanl condition required to check, if SVM has been found in inventory
+
+- name: Source Template Information
+  block:
+    - name: Merge Defaults/Vars with Input
+      ansible.builtin.set_fact:
+        ontap_quota_rule_object: "{{ ontap_quota_rule_object | combine(__ontap_quota_rule_input__, recursive=True) }}"
+  when:
+    - __ontap_quota_rule_input__ is defined
+
+
+
+##############################################################
+### Initiate Action
+##############################################################
+
+- name: Read Quota Information into 'ontap_quota_rule_object'
+  include_tasks:      ontap_quota_rule_info.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
+  when:
+    - ontap_ansiblerole_action == "info"
+
+- name: Create Quota Rule
+  include_tasks:      ontap_quota_rule_create.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
+  when:
+    - ontap_ansiblerole_action == "create"
+
+- name: Delete Quota Rule
+  include_tasks:      ontap_quota_rule_delete.yml
+  vars:
+    ontap_login:
+      <<: *ontap_login
+  when:
+    - ontap_ansiblerole_action == "delete"
