@@ -15,7 +15,7 @@
     gather_subset:
     - svm/svms
     parameters:
-      name:                       "{{ ontap_svm_name }}"
+      name:                       "{{ ontap_svm_object.name }}"
     fields:
     - '*'
     <<: *ontap_login
@@ -29,4 +29,4 @@
 
 - name: Debug ontap_svm_object
   ansible.builtin.debug:
-    msg: "{{ ontap_svm_object }}"
+    msg: "{{ ontap_svm_object.name }}"

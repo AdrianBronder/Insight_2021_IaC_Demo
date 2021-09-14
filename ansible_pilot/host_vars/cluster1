@@ -409,7 +409,7 @@ svms:
             user_mapping:
             type:             tree
             svm:
-              name:           pri_svm_01_cifs_001
+              name:           pri_svm_01
           - volume:
               name:           pri_svm_01_cifs_001
             files:
@@ -427,7 +427,7 @@ svms:
             user_mapping:
             type:             tree
             svm:
-              name:           pri_svm_01_cifs_001
+              name:           pri_svm_01
           - volume:
               name:           pri_svm_01_cifs_001
             files:
@@ -445,4 +445,4 @@ svms:
             user_mapping:
             type:             tree
             svm:
-              name:           pri_svm_01_cifs_001
+              name:           pri_svm_01

@@ -13,7 +13,7 @@
 - name: Create SVM
   na_ontap_svm:
     state:                        present
-    name:                         "{{ ontap_svm_name }}"
+    name:                         "{{ ontap_svm_object.name }}"
     language:                     "{{ ontap_svm_object.language             | default(omit) }}"
     comment:                      "{{ ontap_svm_object.comment              | default(omit) }}"
     ipspace:                      "{{ ontap_svm_object.ipspace.name         | default(omit) }}"
@@ -26,7 +26,7 @@
     na_ontap_interface:
       state:                        present
       interface_name:               "{{ item.name }}"
-      vserver:                      "{{ ontap_svm_name }}"
+      vserver:                      "{{ ontap_svm_object.name }}"
       address:                      "{{ item.ip.address }}"
       netmask:                      "{{ item.ip.netmask }}"
       service_policy:               "{{ item.service_policy.name }}"
@@ -45,7 +45,7 @@
 - name: Configure DNS
   na_ontap_dns:
     state:                        present
-    vserver:                      "{{ ontap_svm_name }}"
+    vserver:                      "{{ ontap_svm_object.name }}"
     domains:                      "{{ ontap_svm_object.dns.domains             | default(omit) }}"
     nameservers:                  "{{ ontap_svm_object.dns.servers             | default(omit) }}"
 #    skip_validation: yes

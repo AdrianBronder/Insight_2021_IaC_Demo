@@ -16,18 +16,21 @@
     vserver:                      "{{ ontap_quota_rule_object.svm.name }}"
     type:                         "{{ ontap_quota_rule_object.type }}"
     volume:                       "{{ ontap_quota_rule_object.volume.name }}"
-    quota_target:                 "{{ ontap_quota_rule_object.qtree.name }}"
+    quota_target:                 "/vol/{{ ontap_quota_rule_object.volume.name }}/{{ ontap_quota_rule_object.qtree.name }}"
 # FIXME - Policy is always "default". ONTAP REST currently does not allow managing custom quota policies
     policy:                       default
     file_limit:                   "{{ ontap_quota_rule_object.files.hard_limit |   default(omit) }}"
     soft_file_limit:              "{{ ontap_quota_rule_object.files.soft_limit |   default(omit) }}"
-    disk_limit:                   "{{ ontap_quota_rule_object.space.hard_limit |   default(omit) }}"
-    disk_soft_limit:              "{{ ontap_quota_rule_object.space.soft_limit |   default(omit) }}"
+# FIXME - ZAPI and current Ansible modules take values in kb. REST takes b by default
+    disk_limit:                   "{{ ontap_quota_rule_object.space.hard_limit / 1024 |   default(omit) }}"
+    soft_disk_limit:              "{{ ontap_quota_rule_object.space.soft_limit / 1024 |   default(omit) }}"
     activate_quota_on_change:     resize
     <<: *ontap_login
   when:
     - ontap_quota_rule_object.type == "tree"
+
 - name: Create User Quota
+  na_ontap_quotas:
     state:                        present
     vserver:                      "{{ ontap_quota_rule_object.svm.name }}"
     type:                         "{{ ontap_quota_rule_object.type }}"
@@ -38,13 +41,16 @@
     policy:                       default
     file_limit:                   "{{ ontap_quota_rule_object.files.hard_limit |   default(omit) }}"
     soft_file_limit:              "{{ ontap_quota_rule_object.files.soft_limit |   default(omit) }}"
-    disk_limit:                   "{{ ontap_quota_rule_object.space.hard_limit |   default(omit) }}"
-    disk_soft_limit:              "{{ ontap_quota_rule_object.space.soft_limit |   default(omit) }}"
+# FIXME - ZAPI and current Ansible modules take values in kb. REST takes b by default
+    disk_limit:                   "{{ ontap_quota_rule_object.space.hard_limit / 1024 |   default(omit) }}"
+    soft_disk_limit:              "{{ ontap_quota_rule_object.space.soft_limit / 1024 |   default(omit) }}"
     activate_quota_on_change:     resize
     <<: *ontap_login
   when:
     - ontap_quota_rule_object.type == "user"
+
 - name: Create Group Quota
+  na_ontap_quotas:
     state:                        present
     vserver:                      "{{ ontap_quota_rule_object.svm.name }}"
     type:                         "{{ ontap_quota_rule_object.type }}"
@@ -54,8 +60,9 @@
     policy:                       default
     file_limit:                   "{{ ontap_quota_rule_object.files.hard_limit |   default(omit) }}"
     soft_file_limit:              "{{ ontap_quota_rule_object.files.soft_limit |   default(omit) }}"
-    disk_limit:                   "{{ ontap_quota_rule_object.space.hard_limit |   default(omit) }}"
-    disk_soft_limit:              "{{ ontap_quota_rule_object.space.soft_limit |   default(omit) }}"
+# FIXME - ZAPI and current Ansible modules take values in kb. REST takes b by default
+    disk_limit:                   "{{ ontap_quota_rule_object.space.hard_limit / 1024 |   default(omit) }}"
+    soft_disk_limit:              "{{ ontap_quota_rule_object.space.soft_limit / 1024 |   default(omit) }}"
     activate_quota_on_change:     resize
     <<: *ontap_login
   when:

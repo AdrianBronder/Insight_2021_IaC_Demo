@@ -60,7 +60,7 @@
 
   - name: Get quotas to be created
     ansible.builtin.set_fact:
-      task_quota_list:          "{{ item.[0].quota_rules }}"
+      task_quota_list:          "{{ item.quota_policies[0].quota_rules }}"
     loop:
       "{{ hostvars[ontap_cluster_name].svms | list }}"
     loop_control:
@@ -73,8 +73,8 @@
       name:                      ontap_quota_rule
     vars:
       __ontap_quota_rule_input__:    "{{ item }}"
-      ontap_quota_rule_type:         "{{ item.type }}"
       ontap_quota_rule_volume:       "{{ item.volume.name }}"
+      ontap_quota_rule_type:         "{{ item.type }}"
       ontap_quota_rule_qtree:        "{{ item.qtree.name }}"
       ontap_quota_rule_users:        "{{ item.users }}"
       ontap_quota_rule_group:        "{{ item.group.name }}"

@@ -52,7 +52,8 @@
 # FIXME - Policy is always "default". ONTAP REST currently does not allow managing custom quota policies
     - name: Find Quota Policy
       ansible.builtin.set_fact:
-        ontap_quota_policy_object: "default"
+        ontap_quota_policy_object: "{{ quota_policy_item }}"
+      loop:
         "{{ ontap_svm_object.quota_policies | list }}"
       loop_control:
         label:    "{{ quota_policy_item.name }}"

@@ -13,5 +13,5 @@
 - name: Delete SVM
   na_ontap_svm:
     state:                        absent
-    name:                         "{{ ontap_svm_name }}"
+    name:                         "{{ ontap_svm_object.name }}"
     <<: *ontap_login

@@ -6,12 +6,14 @@
 - name: Validate Mandatory Input
   fail:
     msg:
-      - "You must pass the 'ontap_svm_name'"
-      - "or pass the '__ontap_svm_input__' variable"
-      - "ontap_ip_interface_name is an optional input"
+      - "You must either pass the 'ontap_svm_name', when sourcing further data from an inventory"
+      - "or pass the '__ontap_svm_input__' variable including child(s): .name"
+      - "- ontap_ip_interface_name is an optional input"
+      - "> ontap_svm_name: {{ ontap_svm_name }}"
+      - "> __ontap_svm_input__.name: {{ __ontap_svm_input__.name }}"
   when:
-    - (ontap_svm_name is undefined and
-       __ontap_svm_input__.name is undefined)
+    - (ontap_svm_name | default('') == "" and
+       __ontap_svm_input__.name | default('') == "")
   tags:
     - always
 
@@ -24,18 +26,25 @@
   tags:
     - always
 
-- name: Set Connection Details
+# - name: Set Connection Details
+#  ansible.builtin.set_fact:
+#    ontap_login: &ontap_login
+#      hostname:                   "{{ ontap_hostname }}"
+#      username:                   "{{ ontap_username }}"
+#      password:                   "{{ ontap_password }}"
+#      https:                      true
+#      validate_certs:             false
+#      use_rest:                   Never
+#  no_log: true
+#  tags:
+#    - always
+
+- name: Add mandatory Input to SVM object
   ansible.builtin.set_fact:
-    ontap_login: &ontap_login
-      hostname:                   "{{ ontap_hostname }}"
-      username:                   "{{ ontap_username }}"
-      password:                   "{{ ontap_password }}"
-      https:                      true
-      validate_certs:             false
-      use_rest:                   Never
-  no_log: true
-  tags:
-    - always
+    ontap_svm_object.name:        "{{ ontap_svm_name }}"
+  when:
+    - not ontap_svm_name | default('') == "" 
+      or not ontap_ip_interface_name | default('') == ""
 
 - name: Source Inventory Information
   block:
@@ -48,20 +57,24 @@
         label:    "{{ svm_item.name }}"
         loop_var: svm_item
       when:
-        - svm_item.name == ontap_svm_name
+        - svm_item.name == ontap_svm_object.name
   when:
     - source_inventory is defined
     - source_inventory == true
-# FIXME - Additional condition required, to check if SVM has been found in inventory
 
-- name: Source Template Information
-  block:
-    - name: Merge Defaults/Vars with Input
-      ansible.builtin.set_fact:
-        ontap_svm_object: "{{ ontap_svm_object | combine(__ontap_svm_input__, recursive=True) }}"
+- name: Merge Defaults/Vars with Input
+  ansible.builtin.set_fact:
+    ontap_svm_object: "{{ ontap_svm_object | combine(__ontap_svm_input__, recursive=True) }}"
   when:
     - __ontap_svm_input__ is defined
 
+- name: Verify Data Sourcing
+  fail:
+    msg:
+      - "Mandatory data could not be sourced:"
+      - "> ontap_svm_object.name {{ ontap_svm_object }}"
+  tags:
+    - always
 
 
 ##############################################################
