@@ -51,7 +51,7 @@
         - svm_item.name == ontap_svm_object.name
   when:
     - source_inventory is defined
-    - source_inventory == true
+    - source_inventory
 
 - name: Merge Defaults/Vars with Input
   ansible.builtin.set_fact:

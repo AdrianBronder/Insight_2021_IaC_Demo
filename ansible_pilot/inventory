@@ -1,6 +1,7 @@
 [ontap]
 cluster1 ontap_hostname=cluster1.demo.netapp.com
 cluster2 ontap_hostname=cluster2.demo.netapp.com
+cluster3 ontap_hostname=cluster3.demo.netapp.com
 
 [ontap:vars]
 ansible_connection=local

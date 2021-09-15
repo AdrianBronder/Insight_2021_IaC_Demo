@@ -38,9 +38,7 @@
         name:                "{{ ontap_volume_name }}"
       type:                  "{{ ontap_quota_rule_type }}"
   when:
-    - not (ontap_svm_name        | default('') == "") or
-      not (ontap_volume_name     | default('') == "") or
-      not (ontap_quota_rule_type | default('') == "")
+    - not (ontap_quota_rule_type | default('') == "")
 
 - name: Validate Action
   fail:
@@ -91,7 +89,7 @@
         - quota_rule_item.group | default('') == ontap_quota_rule_group | default('')
   when:
     - source_inventory is defined
-    - source_inventory == true
+    - source_inventory
 
 - name: Source Template Information
   block:

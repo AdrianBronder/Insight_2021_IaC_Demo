@@ -39,8 +39,7 @@
         name:                "{{ ontap_svm_name }}"
       name:                  "{{ ontap_volume_name }}"
   when:
-    - not (ontap_svm_name    | default('') == "") or
-      not (ontap_volume_name | default('') == "")
+    - not (ontap_volume_name | default('') == "")
       
 - name: Source Inventory Information
   block:
@@ -66,7 +65,7 @@
         - volume_item.name == ontap_volume_name
   when:
     - source_inventory is defined
-    - source_inventory == true
+    - source_inventory
 
 - name: Merge Defaults/Vars with Input
   ansible.builtin.set_fact:

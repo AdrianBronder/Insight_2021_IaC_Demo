@@ -1,17 +1,20 @@
 ---
+################################################################################
+#
+# Descrition:
+# Taking full '__ontap_svm_input__' or sourcing SVM state from the inventory by
+# taking 'ontap_svm_name' and 'source_inventory=true'
+#
+################################################################################
 - hosts:        "{{ ontap_cluster_name }}"
   gather_facts: false
   vars:
     ontap_ansiblerole_action:    "create"
-    source_inventory:            true
-    ontap_svm_name:              "pri_svm_01"
   
   tasks:
-  - name: Create SVMs from Inventory
+  - name: Create SVMs
     include_role:
-      name:                      ontap_svm
-    vars:
-      ontap_ip_interface_name:   "pri_svm_01_mgmt01"
+      name:                      ../roles/ontap_svm
 
   - name: Get volumes to be created
     ansible.builtin.set_fact:
@@ -25,7 +28,7 @@
 
   - name: Create SVM volumes
     include_role:
-      name:                      ontap_volume
+      name:                      ../roles/ontap_volume
     vars:
       __ontap_volume_input__:    "{{ item }}"
       ontap_volume_name:         "{{ item.name }}"
@@ -48,7 +51,7 @@
 
   - name: Create SVM qtrees from Inventory
     include_role:
-      name:                      ontap_qtree
+      name:                      ../roles/ontap_qtree
     vars:
       __ontap_qtree_input__:    "{{ item }}"
       ontap_volume_name:        "{{ item.volume.name }}"
@@ -70,7 +73,7 @@
 
   - name: Create SVM quotas
     include_role:
-      name:                      ontap_quota_rule
+      name:                      ../roles/ontap_quota_rule
     vars:
       __ontap_quota_rule_input__:    "{{ item }}"
       ontap_volume_name:             "{{ item.volume.name }}"

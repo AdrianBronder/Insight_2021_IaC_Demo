@@ -39,8 +39,7 @@
         name:                "{{ ontap_svm_name }}"
       name:                  "{{ ontap_ip_interface_name }}"
   when:
-    - not (ontap_svm_name          | default('') == "") or
-      not (ontap_ip_interface_name | default('') == "")
+    - not (ontap_ip_interface_name | default('') == "")
 
 - name: Source Inventory Information
   block:
@@ -66,7 +65,7 @@
         - ip_interface_item.name == ontap_ip_interface_name
   when:
     - source_inventory is defined
-    - source_inventory == true
+    - source_inventory
 
   - name: Merge Defaults/Vars with Input
     ansible.builtin.set_fact:

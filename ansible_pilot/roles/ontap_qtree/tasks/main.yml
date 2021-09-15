@@ -20,7 +20,7 @@
         ontap_volume_name | default('') == "" or
         ontap_qtree_name  | default('') ==""
         ) and
-       (__ontap_qtree_input__svm.name     | default('') == "" or
+       (__ontap_qtree_input__.name        | default('') == "" or
         __ontap_qtree_input__.volume.name | default('') == "" or
         __ontap_qtree_input__.name        | default('') == ""
         ))
@@ -45,9 +45,7 @@
         name:                "{{ ontap_volume_name }}"
       name:                  "{{ ontap_qtree_name }}"
   when:
-    - not (ontap_svm_name    | default('') == "") or
-      not (ontap_volume_name | default('') == "") or
-      not (ontap_qtree_name  | default('') == "")
+    - not (ontap_qtree_name  | default('') == "")      
 
 - name: Source Inventory Information
   block:
@@ -83,7 +81,7 @@
         - qtree_item.name == ontap_qtree_name
   when:
     - source_inventory is defined
-    - source_inventory == true
+    - source_inventory
 
 - name: Merge Defaults/Vars with Input
   ansible.builtin.set_fact:

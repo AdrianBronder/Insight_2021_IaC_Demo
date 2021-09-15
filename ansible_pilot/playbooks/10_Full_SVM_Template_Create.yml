@@ -1,0 +1,70 @@
+---
+################################################################################
+# Description:
+# -----------
+# Taking full '__ontap_svm_input__' (including childs for svms, ip_interfaces,
+# volumes...
+# or sourcing SVM state from the inventory by taking 'ontap_svm_name' and
+# 'source_inventory=true'
+################################################################################
+- hosts:        "{{ ontap_cluster_name }}"
+  gather_facts: false
+  vars:
+    ontap_ansiblerole_action:    "create"
+  
+  tasks:
+  - name: Create SVMs
+    include_role:
+      name:                      ../roles/ontap_svm
+
+  - name: Extract list of volumes to be created
+    ansible.builtin.set_fact:
+      task_vol_list:             "{{ ontap_svm_object.volumes }}"
+
+  - name: Create SVM volumes
+    include_role:
+      name:                      ../roles/ontap_volume
+    vars:
+      __ontap_volume_input__:    "{{ task_vol_item }}"
+    loop:
+      "{{ task_vol_list | list }}"
+    loop_control:
+      label:     "{{ task_vol_item.name }}"
+      loop_item: task_vol_item
+
+  - name: Get Qtrees to be created
+    ansible.builtin.set_fact:
+      task_qt_list:              "{{ task_qt_list |
+                                    default ([]) + task_qt_item.qtrees
+                                    }}"
+    loop:
+      "{{ ontap_svm_object.volumes }}"
+    loop_control:
+      label:    "{{ task_qt_item.qtrees | default('no qtrees found')}}"
+      loop_var: task_qt_item
+
+  - name: Create SVM Qtrees
+    include_role:
+      name:                      ../roles/ontap_qtree
+    vars:
+      __ontap_qtree_input__:    "{{ task_qt_item }}"
+    loop:
+      "{{ task_qt_list | list }}"
+    loop_control:
+      label:    "{{ task_qt_item.name }}"
+      loop_item: task_qt_item
+
+  - name: Get Quota Rules to be created
+    ansible.builtin.set_fact:
+      task_quota_rule_list:          "{{ ontap_svm_object.quota_policies[0].quota_rules }}"
+
+  - name: Create SVM Quota Rules
+    include_role:
+      name:                      ../roles/ontap_quota_rule
+    vars:
+      __ontap_quota_rule_input__:    "{{ task_quota_rule_item }}"
+    loop:
+      "{{ task_quota_rule_list | list }}"
+    loop_control:
+      label:    "{{ task_quota_rule_item }}"
+      loop_item: task_quota_rule_item

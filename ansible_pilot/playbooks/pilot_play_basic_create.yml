@@ -1,0 +1,10 @@
+---
+- hosts:        "{{ ontap_cluster_name }}"
+  gather_facts: false
+  vars:
+    ontap_ansiblerole_action:     "create"
+    source_inventory:             true
+  
+  roles:
+  - role: ../roles/ontap_svm
+  - role: ../roles/ontap_volume

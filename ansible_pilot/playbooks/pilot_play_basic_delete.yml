@@ -5,5 +5,5 @@
     ontap_ansiblerole_action:     "delete"
 
   roles:
-  - role: ontap_volume
-  - role: ontap_svm
+  - role: ../roles/ontap_volume
+  - role: ../roles/ontap_svm

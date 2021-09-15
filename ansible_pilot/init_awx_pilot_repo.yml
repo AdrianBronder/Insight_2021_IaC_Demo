@@ -107,26 +107,20 @@
       overwrite:                 True
       <<: *input
 
-  - name: Create Job Template for Creating an SVM
+  - name: Create an SVM
     tower_job_template:
       state:                     present
-      name:                      "Basic SVM Create"
+      name:                      "Single SVM Create"
       job_type:                  "run"
       inventory:                 "LoD Inventory"
       project:                   "LoD Demo - Ansible Pilot"
-      playbook:                  "ansible_pilot/pilot_play_basic_create.yml"
+      playbook:                  "ansible_pilot/playbooks/pilot_play_basic_create.yml"
       credential:                "ONTAP Default Credentials"
       survey_enabled:            "yes"
       survey_spec:
         name:                    "Default Survey for 'Basic SVM Create'"
         description:             ""
         spec:
-#        - question_name:         "Action"
-#          description:           "Describing the action to be performed"
-#          required:              True
-#          type:                  "multiplechoice"
-#          choices:               "create\ndelete"
-#          variable:              "ontap_ansiblerole_action"
         - question_name:         "Cluster Name"
           description:           "ONTAP Cluster to act on"
           required:              True
@@ -144,7 +138,43 @@
           variable:              "ontap_ip_interface_name"
         - question_name:         "Volume Name"
           description:           "Volume to act on"
+          required:              False
+          type:                  "text"
+          variable:              "ontap_volume_name"
+      <<: *input
+
+  - name: Create Job Template for Creating an SVM
+    tower_job_template:
+      state:                     present
+      name:                      "Basic SVM Create"
+      job_type:                  "run"
+      inventory:                 "LoD Inventory"
+      project:                   "LoD Demo - Ansible Pilot"
+      playbook:                  "ansible_pilot/playbooks/pilot_play_basic_create.yml"
+      credential:                "ONTAP Default Credentials"
+      survey_enabled:            "yes"
+      survey_spec:
+        name:                    "Default Survey for 'Basic SVM Create'"
+        description:             ""
+        spec:
+        - question_name:         "Cluster Name"
+          description:           "ONTAP Cluster to act on"
           required:              True
+          type:                  "text"
+          variable:              "ontap_cluster_name"
+        - question_name:         "SVM Name"
+          description:           "SVM to act on"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_svm_name"
+        - question_name:         "Management Interface Name"
+          description:           "LIF to act on"
+          required:              False
+          type:                  "text"
+          variable:              "ontap_ip_interface_name"
+        - question_name:         "Volume Name"
+          description:           "Volume to act on"
+          required:              False
           type:                  "text"
           variable:              "ontap_volume_name"
       <<: *input
@@ -156,19 +186,13 @@
       job_type:                  "run"
       inventory:                 "LoD Inventory"
       project:                   "LoD Demo - Ansible Pilot"
-      playbook:                  "ansible_pilot/pilot_play_basic_delete.yml"
+      playbook:                  "ansible_pilot/playbooks/pilot_play_basic_delete.yml"
       credential:                "ONTAP Default Credentials"
       survey_enabled:            "yes"
       survey_spec:
         name:                    "Default Survey for 'Basic SVM Delete'"
         description:             ""
         spec:
-#        - question_name:         "Action"
-#          description:           "Describing the action to be performed"
-#          required:              True
-#          type:                  "multiplechoice"
-#          choices:               "create\ndelete"
-#          variable:              "ontap_ansiblerole_action"
         - question_name:         "Cluster Name"
           description:           "ONTAP Cluster to act on"
           required:              True
@@ -193,19 +217,13 @@
       job_type:                  "run"
       inventory:                 "LoD Inventory"
       project:                   "LoD Demo - Ansible Pilot"
-      playbook:                  "ansible_pilot/pilot_play_basic_info.yml"
+      playbook:                  "ansible_pilot/playbooks/pilot_play_basic_info.yml"
       credential:                "ONTAP Default Credentials"
       survey_enabled:            "yes"
       survey_spec:
         name:                    "Default Survey for 'Basic SVM Info'"
         description:             ""
         spec:
-#        - question_name:         "Action"
-#          description:           "Describing the action to be performed"
-#          required:              True
-#          type:                  "multiplechoice"
-#          choices:               "create\ndelete"
-#          variable:              "ontap_ansiblerole_action"
         - question_name:         "Cluster Name"
           description:           "ONTAP Cluster to act on"
           required:              True
@@ -226,4 +244,37 @@
           required:              True
           type:                  "text"
           variable:              "ontap_volume_name"
+        - question_name:         "Qtree Name"
+          description:           "Qtree to act on"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_qtree_name"
+      <<: *input
+
+  - name: Info Job Template for full SVM provisioning
+    tower_job_template:
+      state:                     present
+      name:                      "SVM Template Provisioning"
+      job_type:                  "run"
+      inventory:                 "LoD Inventory"
+      project:                   "LoD Demo - Ansible Pilot"
+      playbook:                  "ansible_pilot/playbooks/pilot_play_basic_info.yml"
+      credential:                "ONTAP Default Credentials"
+      ask_variables_on_launch:   "yes"
+      survey_enabled:            "yes"
+      survey_spec:
+        name:                    "Default Survey for 'SVM Template Provisioning'"
+        description:             ""
+        spec:
+        - question_name:         "SVM Name"
+          description:           "ONTAP SVM to act on"
+          required:              False
+          type:                  "text"
+          variable:              "ontap_svm_name"
+        - question_name:         "Source Inventory?"
+          description:           "SVM to act on"
+          required:              False
+          type:                  "multiplechoice"
+          choices:               "false\ntrue"
+          variable:              "source_inventory"
       <<: *input

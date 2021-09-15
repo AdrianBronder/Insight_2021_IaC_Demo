@@ -3,9 +3,9 @@
   gather_facts: false
   vars:
     ontap_ansiblerole_action:     "info"
-    source_inventory:             true
   
   roles:
-  - role: ontap_svm
-  - role: ontap_ip_interface
-  - role: ontap_volume
+  - role: ../roles/ontap_svm
+  - role: ../roles/ontap_ip_interface
+  - role: ../roles/ontap_volume
+  - role: ../roles/ontap_qtree

@@ -1,0 +1,12 @@
+name:                     cluster3
+dns_domains:
+  -                       demo.netapp.com
+name_servers:
+  -                       192.168.0.253
+timezone:
+  name:                   Europe/Berlin
+ntp_servers:
+  -
+nodes:
+  -
+svms:
