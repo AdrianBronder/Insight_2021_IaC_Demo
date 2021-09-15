@@ -33,12 +33,11 @@
     - always
 
 - name: Add mandatory Input to IP Interface object
-  block:
-    - ansible.builtin.set_fact:
-      ontap_ip_interface_object:
-        svm:
-          name:                "{{ ontap_svm_name }}"
-        name:                  "{{ ontap_ip_interface_name }}"
+  ansible.builtin.set_fact:
+    ontap_ip_interface_object:
+      svm:
+        name:                "{{ ontap_svm_name }}"
+      name:                  "{{ ontap_ip_interface_name }}"
   when:
     - not (ontap_svm_name          | default('') == "") or
       not (ontap_ip_interface_name | default('') == "")

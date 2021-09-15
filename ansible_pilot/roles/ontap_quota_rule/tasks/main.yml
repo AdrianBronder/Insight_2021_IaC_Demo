@@ -30,14 +30,13 @@
 
 # FIXME: Adding parameters based on on quota type...
 - name: Add mandatory Input to Quota Rule object
-  block:
-    - ansible.builtin.set_fact:
-      ontap_quota_rule_object:
-        svm:
-          name:                "{{ ontap_svm_name }}"
-        volume:
-          name:                "{{ ontap_volume_name }}"
-        type:                  "{{ ontap_quota_rule_type }}"
+  ansible.builtin.set_fact:
+    ontap_quota_rule_object:
+      svm:
+        name:                "{{ ontap_svm_name }}"
+      volume:
+        name:                "{{ ontap_volume_name }}"
+      type:                  "{{ ontap_quota_rule_type }}"
   when:
     - not (ontap_svm_name        | default('') == "") or
       not (ontap_volume_name     | default('') == "") or
@@ -85,7 +84,7 @@
         label:    "{{ quota_rule_item }}"
         loop_var: quota_rule_item
       when:
-        - quota_rule_item.volume == ontap_quota_rule_volume
+        - quota_rule_item.volume.name == ontap_volume_name
         - quota_rule_item.type == ontap_quota_rule_type
         - quota_rule_item.qtree | default('') == ontap_quota_rule_qtree | default('')
         - quota_rule_item.users | default('') == ontap_quota_rule_users | default('')

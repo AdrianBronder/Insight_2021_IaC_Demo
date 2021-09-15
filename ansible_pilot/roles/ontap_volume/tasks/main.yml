@@ -33,12 +33,11 @@
     - always
 
 - name: Add mandatory Input to Volume object
-  block:
-    - ansible.builtin.set_fact:
-      ontap_volume_object:
-        svm:
-          name:                "{{ ontap_svm_name }}"
-        name:                  "{{ ontap_volume_name }}"
+  ansible.builtin.set_fact:
+    ontap_volume_object:
+      svm:
+        name:                "{{ ontap_svm_name }}"
+      name:                  "{{ ontap_volume_name }}"
   when:
     - not (ontap_svm_name    | default('') == "") or
       not (ontap_volume_name | default('') == "")

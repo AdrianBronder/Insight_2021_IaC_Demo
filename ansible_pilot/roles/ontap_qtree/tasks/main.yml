@@ -37,14 +37,13 @@
     - always
 
 - name: Add mandatory Input to Qtree object
-  block:
-    - ansible.builtin.set_fact:
-      ontap_qtree_object:
-        svm:
-          name:                "{{ ontap_svm_name }}"
-        volume:
-          name:                "{{ ontap_volume_name }}"
-        name:                  "{{ ontap_qtree_name }}"
+  ansible.builtin.set_fact:
+    ontap_qtree_object:
+      svm:
+        name:                "{{ ontap_svm_name }}"
+      volume:
+        name:                "{{ ontap_volume_name }}"
+      name:                  "{{ ontap_qtree_name }}"
   when:
     - not (ontap_svm_name    | default('') == "") or
       not (ontap_volume_name | default('') == "") or
@@ -86,9 +85,9 @@
     - source_inventory is defined
     - source_inventory == true
 
-  - name: Merge Defaults/Vars with Input
-    ansible.builtin.set_fact:
-      ontap_qtree_object: "{{ ontap_qtree_object | combine(__ontap_qtree_input__, recursive=True) }}"
+- name: Merge Defaults/Vars with Input
+  ansible.builtin.set_fact:
+    ontap_qtree_object: "{{ ontap_qtree_object | combine(__ontap_qtree_input__, recursive=True) }}"
   when:
     - __ontap_qtree_input__ is defined
 

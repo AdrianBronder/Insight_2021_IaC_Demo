@@ -73,7 +73,7 @@
       name:                      ontap_quota_rule
     vars:
       __ontap_quota_rule_input__:    "{{ item }}"
-      ontap_quota_rule_volume:       "{{ item.volume.name }}"
+      ontap_volume_name:             "{{ item.volume.name }}"
       ontap_quota_rule_type:         "{{ item.type }}"
       ontap_quota_rule_qtree:        "{{ item.qtree.name }}"
       ontap_quota_rule_users:        "{{ item.users }}"
