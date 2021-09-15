@@ -15,8 +15,8 @@
     gather_subset:
     - storage/volumes
     parameters:
-      name:                       "{{ ontap_volume_name }}"
-      svm.name:                   "{{ ontap_svm_name }}"
+      svm.name:                   "{{ ontap_volume_object.svm.name }}"
+      name:                       "{{ ontap_volume_object.name }}"
     fields:
     - '*'
     <<: *ontap_login

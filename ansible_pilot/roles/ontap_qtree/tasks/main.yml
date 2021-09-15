@@ -7,28 +7,48 @@
 - name: Validate Mandatory Input
   fail:
     msg:
-      - "You must pass the 'ontap_qtree_name', 'ontap_volume_name' and 'ontap_svm_name'"
-      - "or the '__ontap_qtree_input__' variable"
+      - "You must either pass 'ontap_qtree_name', 'ontap_volume_name' and 'ontap_svm_name' 
+        or '__ontap_qtree_input__' including child(s): .name, .volume.name, .svm.name"
+      - "> ontap_svm_name:                    {{ ontap_svm_name | default('') }}"
+      - "> ontap_volume_name:                 {{ ontap_volume_name | default('') }}"
+      - "> ontap_qtree_name:                  {{ ontap_qtree_name | default('') }}"
+      - "> __ontap_qtree_input__.svm.name:    {{ __ontap_qtree_input__.svm.name | default ('') }}"
+      - "> __ontap_qtree_input__.volume.name: {{ __ontap_qtree_input__.volume.name | default ('') }}"
+      - "> __ontap_qtree_input__.name:        {{ __ontap_qtree_input__.name | default ('') }}"
   when:
-    - ((ontap_qtree_name is undefined or
-      ontap_volume_name is undefined or
-      ontap_svm_name is undefined) and
-      __ontap_qtree_input__ is undefined)
+    - ((ontap_svm_name    | default('') == "" or
+        ontap_volume_name | default('') == "" or
+        ontap_qtree_name  | default('') ==""
+        ) and
+       (__ontap_qtree_input__svm.name     | default('') == "" or
+        __ontap_qtree_input__.volume.name | default('') == "" or
+        __ontap_qtree_input__.name        | default('') == ""
+        ))
   tags:
     - always
 
-- name: Set Connection Details
-  ansible.builtin.set_fact:
-    ontap_login: &ontap_login
-      hostname:                   "{{ ontap_hostname }}"
-      username:                   "{{ ontap_username }}"
-      password:                   "{{ ontap_password }}"
-      https:                      true
-      validate_certs:             false
-      use_rest:                   Never
-  no_log: true
+- name: Validate Action
+  fail:
+    msg:
+      - "You must pass the 'ontap_ansiblerole_action' variable"
+  when:
+    - ontap_ansiblerole_action is undefined
   tags:
     - always
+
+- name: Add mandatory Input to Qtree object
+  block:
+    - ansible.builtin.set_fact:
+      ontap_qtree_object:
+        svm:
+          name:                "{{ ontap_svm_name }}"
+        volume:
+          name:                "{{ ontap_volume_name }}"
+        name:                  "{{ ontap_qtree_name }}"
+  when:
+    - not (ontap_svm_name    | default('') == "") or
+      not (ontap_volume_name | default('') == "") or
+      not (ontap_qtree_name  | default('') == "")
 
 - name: Source Inventory Information
   block:
@@ -65,17 +85,26 @@
   when:
     - source_inventory is defined
     - source_inventory == true
-# FIXME - Additioanl condition required to check, if SVM has been found in inventory
 
-- name: Source Template Information
-  block:
-    - name: Merge Defaults/Vars with Input
-      ansible.builtin.set_fact:
-        ontap_volume_object: "{{ ontap_qtree_object | combine(__ontap_qtree_input__, recursive=True) }}"
+  - name: Merge Defaults/Vars with Input
+    ansible.builtin.set_fact:
+      ontap_qtree_object: "{{ ontap_qtree_object | combine(__ontap_qtree_input__, recursive=True) }}"
   when:
     - __ontap_qtree_input__ is defined
 
-
+- name: Verify Data Sourcing
+  fail:
+    msg:
+      - "Mandatory data could not be sourced:"
+      - "> ontap_qtree_object.svm.name    --> {{ ontap_qtree_object.svm.name }}"
+      - "> ontap_qtree_object.volume.name --> {{ ontap_qtree_object.volume.name }}"
+      - "> ontap_qtree_object.name        --> {{ ontap_qtree_object.name }}"
+  when:
+    - ontap_qtree_object.svm.name    | default('') == "" or
+      ontap_qtree_object.volume.name | default('') == "" or
+      ontap_qtree_object.name        | default('') == ""
+  tags:
+    - always
 
 ##############################################################
 ### Initiate Action
@@ -83,24 +112,15 @@
 
 - name: Read Qtree Information into 'ontap_qtree_object'
   include_tasks:      ontap_qtree_info.yml
-  vars:
-    ontap_login:
-      <<: *ontap_login
   when:
     - ontap_ansiblerole_action == "info"
 
 - name: Create Qtree
   include_tasks:      ontap_qtree_create.yml
-  vars:
-    ontap_login:
-      <<: *ontap_login
   when:
     - ontap_ansiblerole_action == "create"
 
 - name: Delete Qtree
   include_tasks:      ontap_qtree_delete.yml
-  vars:
-    ontap_login:
-      <<: *ontap_login
   when:
     - ontap_ansiblerole_action == "delete"

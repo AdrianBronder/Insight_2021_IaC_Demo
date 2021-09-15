@@ -13,10 +13,10 @@
 - name: Create Qtree
   na_ontap_qtree:
     state:                        present
-    name:                         "{{ ontap_qtree_name }}"
-    flexvol_name:                 "{{ ontap_volume_name }}"
-    vserver:                      "{{ ontap_svm_name }}"
-    export_policy:                "{{ ontap_qtree_object.export_policy.name              | default(omit) }}"
-    security_style:               "{{ ontap_qtree_object.security_style                  | default(omit) }}"
-    unix_permissions:             "{{ ontap_qtree_object.unix_permissions                | default(omit) }}"
+    name:                         "{{ ontap_qtree_object.name }}"
+    flexvol_name:                 "{{ ontap_qtree_object.volume.name }}"
+    vserver:                      "{{ ontap_qtree_object.svm.name }}"
+    export_policy:                "{{ ontap_qtree_object.export_policy.name  | default(omit) }}"
+    security_style:               "{{ ontap_qtree_object.security_style      | default(omit) }}"
+    unix_permissions:             "{{ ontap_qtree_object.unix_permissions    | default(omit) }}"
     <<: *ontap_login

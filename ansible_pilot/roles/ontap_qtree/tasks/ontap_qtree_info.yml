@@ -15,9 +15,9 @@
     gather_subset:
     - storage/qtree
     parameters:
-      name:                       "{{ ontap_qtree_name }}"
-      volume.name:                "{{ ontap_volume_name }}"
-      svm.name:                   "{{ ontap_svm_name }}"
+      svm.name:                   "{{ ontap_qtree_object.svm.name }}"
+      volume.name:                "{{ ontap_qtree_object.volume.name }}"
+      name:                       "{{ ontap_qtree_object.name }}"
     fields:
     - '*'
     <<: *ontap_login

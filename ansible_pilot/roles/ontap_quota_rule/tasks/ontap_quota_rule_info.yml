@@ -15,11 +15,11 @@
     gather_subset:
     - network/ip/interfaces
     parameters:
-      volume.name:                "{{ ontap_quota_rule_volume }}"
-      type:                       "{{ ontap_quota_rule_type }}"
-      qtree.name:                 "{{ ontap_quota_rule_qtree | default(omit) }}"
-      users.name:                 "{{ ontap_quota_rule_users | default(omit) }}"
-      group.name:                 "{{ ontap_quota_rule_group | default(omit) }}"
+      volume.name:                "{{ ontap_quota_rule_object.volume.name }}"
+      type:                       "{{ ontap_quota_rule_object.type }}"
+      qtree.name:                 "{{ ontap_quota_rule_object.qtree.name | default(omit) }}"
+      users.name:                 "{{ ontap_quota_rule_object.users.name | default(omit) }}"
+      group.name:                 "{{ ontap_quota_rule_object.group.name | default(omit) }}"
     fields:
     - '*'
     <<: *ontap_login

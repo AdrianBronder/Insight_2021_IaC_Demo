@@ -16,6 +16,7 @@
     vserver:                      "{{ ontap_quota_rule_object.svm.name }}"
     type:                         "{{ ontap_quota_rule_object.type }}"
     volume:                       "{{ ontap_quota_rule_object.volume.name }}"
+# FIXME - Requires observation, as format might change with REST
     quota_target:                 "/vol/{{ ontap_quota_rule_object.volume.name }}/{{ ontap_quota_rule_object.qtree.name }}"
 # FIXME - Policy is always "default". ONTAP REST currently does not allow managing custom quota policies
     policy:                       default

@@ -15,7 +15,8 @@
     gather_subset:
     - network/ip/interfaces
     parameters:
-      name:                       "{{ ontap_ip_interface_name }}"
+      svm.name:                   "{{ ontap_ip_interface_object.svm.name }}"
+      name:                       "{{ ontap_ip_interface_object.name }}"
     fields:
     - '*'
     <<: *ontap_login

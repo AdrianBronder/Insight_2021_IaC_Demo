@@ -1,19 +1,22 @@
 ---
-##############################################################
+# tasks file for ontap_svm
+###############################################################
 ### Run Pre-steps
 ##############################################################
 
 - name: Validate Mandatory Input
   fail:
     msg:
-      - "You must either pass the 'ontap_svm_name', when sourcing further data from an inventory"
-      - "or pass the '__ontap_svm_input__' variable including child(s): .name"
+      - "You must either pass 'ontap_svm_name' 
+        or pass  '__ontap_svm_input__' including child(s): .name"
       - "- ontap_ip_interface_name is an optional input"
-      - "> ontap_svm_name: {{ ontap_svm_name }}"
-      - "> __ontap_svm_input__.name: {{ __ontap_svm_input__.name }}"
+      - "> ontap_svm_name:           {{ ontap_svm_name | default('') }}"
+      - "> __ontap_svm_input__.name: {{ __ontap_svm_input__.name | default ('') }}"
   when:
-    - (ontap_svm_name | default('') == "" and
-       __ontap_svm_input__.name | default('') == "")
+    - ((ontap_svm_name | default('') == "")
+        and
+       (__ontap_svm_input__.name | default('') == "")
+      )
   tags:
     - always
 
@@ -26,25 +29,13 @@
   tags:
     - always
 
-# - name: Set Connection Details
-#  ansible.builtin.set_fact:
-#    ontap_login: &ontap_login
-#      hostname:                   "{{ ontap_hostname }}"
-#      username:                   "{{ ontap_username }}"
-#      password:                   "{{ ontap_password }}"
-#      https:                      true
-#      validate_certs:             false
-#      use_rest:                   Never
-#  no_log: true
-#  tags:
-#    - always
-
 - name: Add mandatory Input to SVM object
   ansible.builtin.set_fact:
-    ontap_svm_object.name:        "{{ ontap_svm_name }}"
+    ontap_svm_object:
+      name:                  "{{ ontap_svm_name }}"
   when:
-    - not ontap_svm_name | default('') == "" 
-      or not ontap_ip_interface_name | default('') == ""
+    - not (ontap_svm_name          | default('') == "") or
+      not (ontap_ip_interface_name | default('') == "")
 
 - name: Source Inventory Information
   block:
@@ -72,9 +63,12 @@
   fail:
     msg:
       - "Mandatory data could not be sourced:"
-      - "> ontap_svm_object.name {{ ontap_svm_object }}"
+      - "> ontap_svm_object.name --> {{ ontap_svm_object.name }}"
+  when:
+    - ontap_svm_object.name | default('') == ""
   tags:
     - always
+
 
 
 ##############################################################
@@ -83,24 +77,15 @@
 
 - name: Read SVM Information into 'ontap_volume_object'
   include_tasks:      ontap_svm_info.yml
-  vars:
-    ontap_login:
-      <<: *ontap_login
   when:
     - ontap_ansiblerole_action == "info"
 
 - name: Create SVM
   include_tasks:      ontap_svm_create.yml
-  vars:
-    ontap_login:
-      <<: *ontap_login
   when:
     - ontap_ansiblerole_action == "create"
 
 - name: Delete SVM
   include_tasks:      ontap_svm_delete.yml
-  vars:
-    ontap_login:
-      <<: *ontap_login
   when:
     - ontap_ansiblerole_action == "delete"
