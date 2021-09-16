@@ -30,7 +30,7 @@
 
   - name: Read SVM IP Interfaces
     include_role:
-      name:                       ../roles/ontap_ip_interfaces
+      name:                       ../roles/ontap_ip_interface
     vars:
       __ontap_ip_interface_input__:
                                   "{{ task_lif_item }}"
