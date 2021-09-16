@@ -15,7 +15,7 @@
   vars:
     ontap_ansiblerole_action:     "info"
   
-  roles:
+  tasks:
   - name: Read SVM
     include_role:
       name:                       ../roles/ontap_svm
