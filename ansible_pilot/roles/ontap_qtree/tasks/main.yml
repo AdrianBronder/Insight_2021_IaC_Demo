@@ -30,9 +30,9 @@
 - name: Validate Action
   fail:
     msg:
-      - "You must pass the 'ontap_ansiblerole_action' variable"
+      - "You must pass the '__ontap_ansiblerole_action__' variable"
   when:
-    - ontap_ansiblerole_action is undefined
+    - __ontap_ansiblerole_action__ is undefined
   tags:
     - always
 
@@ -80,8 +80,8 @@
       when:
         - qtree_item.name == ontap_qtree_name
   when:
-    - source_inventory is defined
-    - source_inventory
+    - __source_inventory__ is defined
+    - __source_inventory__
 
 - name: Merge Defaults/Vars with Input
   ansible.builtin.set_fact:
@@ -110,14 +110,14 @@
 - name: Read Qtree Information into 'ontap_qtree_object'
   include_tasks:      ontap_qtree_info.yml
   when:
-    - ontap_ansiblerole_action == "info"
+    - __ontap_ansiblerole_action__ == "info"
 
 - name: Create Qtree
   include_tasks:      ontap_qtree_create.yml
   when:
-    - ontap_ansiblerole_action == "create"
+    - __ontap_ansiblerole_action__ == "create"
 
 - name: Delete Qtree
   include_tasks:      ontap_qtree_delete.yml
   when:
-    - ontap_ansiblerole_action == "delete"
+    - __ontap_ansiblerole_action__ == "delete"
