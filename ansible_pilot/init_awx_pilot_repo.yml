@@ -340,6 +340,50 @@
           type:                  "multiplechoice"
           choices:               "false\ntrue"
           variable:              "source_inventory"
+      <<: *input
+
+  - name: Create Job Template for "Full SVM Read Status"
+    tower_job_template:
+      state:                     present
+      name:                      "Full SVM Read Status"
+      job_type:                  "run"
+      inventory:                 "LoD Inventory"
+      project:                   "LoD Demo - Ansible Pilot"
+      playbook:                  "ansible_pilot/playbooks/80_Full_SVM_Read_Status.yml"
+      credential:                "ONTAP Default Credentials"
+      ask_variables_on_launch:   "yes"
+      survey_enabled:            "yes"
+      survey_spec:
+        name:                    "Default Survey for 'Full SVM Read Status'"
+        description:             ""
+        spec:
+        - question_name:         "Cluster Name"
+          description:           "ONTAP Cluster to act on"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_cluster_name"
+        - question_name:         "SVM Name"
+          description:           "SVM to act on"
+          required:              False
+          type:                  "text"
+          variable:              "ontap_svm_name"
+        - question_name:         "Volume Name"
+          description:           "Volume to act on"
+          required:              False
+          type:                  "text"
+          variable:              "ontap_volume_name"
+        - question_name:         "Qtree Name"
+          description:           "Qtree to act on"
+          required:              False
+          type:                  "text"
+          variable:              "ontap_qtree_name"
+        - question_name:         "Source Inventory?"
+          description:           "Should the data be retreived from an Ansible Inventory?"
+          required:              False
+          type:                  "multiplechoice"
+          choices:               "false\ntrue"
+          variable:              "source_inventory"
+      <<: *input
 
   - name: Create Job Template for "Full SVM Delete"
     tower_job_template:
@@ -366,3 +410,4 @@
           required:              False
           type:                  "text"
           variable:              "ontap_svm_name"
+      <<: *input
