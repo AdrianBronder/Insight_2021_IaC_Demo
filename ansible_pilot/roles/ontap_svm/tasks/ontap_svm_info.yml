@@ -13,11 +13,12 @@
 - name: Get SVM Info
   na_ontap_rest_info:
     gather_subset:
-    - svm/svms
+      - svm/svms
     parameters:
       name:                       "{{ ontap_svm_object.name }}"
     fields:
-    - '*'
+# FIXME - List of required fields has to be added for to improve overall efficiency
+      - '**'
     <<: *ontap_login
   register: __ontap_svm_input__
 
@@ -29,4 +30,4 @@
 
 - name: Debug ontap_svm_object
   ansible.builtin.debug:
-    msg: "{{ ontap_svm_object.name }}"
+    msg: "{{ ontap_svm_object }}"

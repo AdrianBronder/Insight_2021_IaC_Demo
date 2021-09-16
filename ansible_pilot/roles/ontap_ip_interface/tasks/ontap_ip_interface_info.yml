@@ -13,13 +13,13 @@
 - name: Get LIF Info
   na_ontap_rest_info:
     gather_subset:
-    - network/ip/interfaces
+      - network/ip/interfaces
     parameters:
       svm.name:                   "{{ ontap_ip_interface_object.svm.name }}"
       name:                       "{{ ontap_ip_interface_object.name }}"
     fields:
-    - '*'
-    <<: *ontap_login
+# FIXME - List of required fields has to be added for to improve overall efficiency
+      - '**'
   register: __ontap_ip_interface_input__
 
 - name: Set __ontap_ip_interface_input__

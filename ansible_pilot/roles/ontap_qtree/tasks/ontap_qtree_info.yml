@@ -13,13 +13,14 @@
 - name: Get Qtree Info
   na_ontap_rest_info:
     gather_subset:
-    - storage/qtree
+      - storage/qtree
     parameters:
       svm.name:                   "{{ ontap_qtree_object.svm.name }}"
       volume.name:                "{{ ontap_qtree_object.volume.name }}"
       name:                       "{{ ontap_qtree_object.name }}"
     fields:
-    - '*'
+# FIXME - List of required fields has to be added for to improve overall efficiency
+      - '**'
     <<: *ontap_login
   register: __ontap_qtree_input__
 

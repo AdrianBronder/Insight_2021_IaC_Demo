@@ -13,7 +13,7 @@
 - name: Get LIF Info
   na_ontap_rest_info:
     gather_subset:
-    - network/ip/interfaces
+      - storage/quota/rules
     parameters:
       volume.name:                "{{ ontap_quota_rule_object.volume.name }}"
       type:                       "{{ ontap_quota_rule_object.type }}"
@@ -21,7 +21,8 @@
       users.name:                 "{{ ontap_quota_rule_object.users.name | default(omit) }}"
       group.name:                 "{{ ontap_quota_rule_object.group.name | default(omit) }}"
     fields:
-    - '*'
+# FIXME - List of required fields has to be added for to improve overall efficiency
+      - '**'
     <<: *ontap_login
   register: __ontap_quota_rule_input__
 

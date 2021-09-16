@@ -13,12 +13,13 @@
 - name: Get Volume Info
   na_ontap_rest_info:
     gather_subset:
-    - storage/volumes
+      - storage/volumes
     parameters:
       svm.name:                   "{{ ontap_volume_object.svm.name }}"
       name:                       "{{ ontap_volume_object.name }}"
     fields:
-    - '*'
+# FIXME - List of required fields has to be added for to improve overall efficiency
+      - '**'
     <<: *ontap_login
   register: __ontap_volume_input__
 
