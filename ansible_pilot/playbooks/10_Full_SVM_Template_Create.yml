@@ -2,10 +2,11 @@
 ################################################################################
 # Description:
 # -----------
-# Taking full '__ontap_svm_input__' (including childs for svms, ip_interfaces,
-# volumes...
-# or sourcing SVM state from the inventory by taking 'ontap_svm_name' and
-# 'source_inventory=true'
+# - Creating an entire SVM with all child items (ip_interfaces, volumes,
+#   qtrees, quotas...)
+# - Taking full '__ontap_svm_input__' (including childs)
+#   or sourcing SVM state from the inventory by taking 'ontap_svm_name' and
+#   'source_inventory=true'
 ################################################################################
 - hosts:                          "{{ ontap_cluster_name }}"
   gather_facts: false
@@ -17,19 +18,40 @@
     include_role:
       name:                       ../roles/ontap_svm
     vars:
-      __ontap_ansiblerole_action__: "create"
+      __ontap_ansiblerole_action__:
+                                  "{{ ontap_ansiblerole_action }}"
       __source_inventory__:       "{{ source_inventory }}"
 
-  - name: Extract list of volumes to be created
+  - name: Get list of IP Interfaces to be created
+    ansible.builtin.set_fact:
+      task_lif_list:              "{{ ontap_svm_object.ip_interfaces }}"
+
+  - name: Create SVM IP Interfaces
+    include_role:
+      name:                       ../roles/ontap_ip_interfaces
+    vars:
+      __ontap_ip_interface_input__:
+                                  "{{ task_vol_item }}"
+      __ontap_ansiblerole_action__:
+                                  "create"
+      __source_inventory__:       false
+    loop:
+      "{{ task_lif_list | list }}"
+    loop_control:
+      label:    "{{ task_vol_lif.name }}"
+      loop_var: task_lif_item
+
+  - name: Get list of Volumes to be created
     ansible.builtin.set_fact:
       task_vol_list:              "{{ ontap_svm_object.volumes }}"
 
-  - name: Create SVM volumes
+  - name: Create SVM Volumes
     include_role:
       name:                       ../roles/ontap_volume
     vars:
       __ontap_volume_input__:     "{{ task_vol_item }}"
-      __ontap_ansiblerole_action__: "create"
+      __ontap_ansiblerole_action__:
+                                  "create"
       __source_inventory__:       false
     loop:
       "{{ task_vol_list | list }}"
@@ -53,7 +75,8 @@
       name:                       ../roles/ontap_qtree
     vars:
       __ontap_qtree_input__:      "{{ task_qt_item }}"
-      __ontap_ansiblerole_action__: "create"
+      __ontap_ansiblerole_action__:
+                                  "create"
       __source_inventory__:       false
     loop:
       "{{ task_qt_list | list }}"
@@ -70,7 +93,8 @@
       name:                       ../roles/ontap_quota_rule
     vars:
       __ontap_quota_rule_input__: "{{ task_quota_rule_item }}"
-      __ontap_ansiblerole_action__: "create"
+      __ontap_ansiblerole_action__:
+                                  "create"
       __source_inventory__:       false
     loop:
       "{{ task_quota_rule_list | list }}"

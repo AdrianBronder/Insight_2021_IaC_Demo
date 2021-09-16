@@ -26,7 +26,7 @@
   ansible.builtin.set_fact:
     ontap_volume_object: "{{ __ontap_volume_input__.ontap_info['storage/volumes'].records[0] }}"
   when:
-  - __ontap_volume_input__.ontap_info['storage/volumes'].num_records == 1
+  - __ontap_volume_input__.ontap_info['storage/volumes'].num_records == 1 
 
 - name: Debug ontap_volume_object
   ansible.builtin.debug:

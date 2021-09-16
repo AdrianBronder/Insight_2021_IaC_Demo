@@ -1,87 +1,54 @@
 ---
 ################################################################################
-#
-# Descrition:
-# Taking full '__ontap_svm_input__' or sourcing SVM state from the inventory by
-# taking 'ontap_svm_name' and 'source_inventory=true'
+# Description:
+# -----------
+# - Deleting an entire SVM with all child items (ip_interfaces, volumes,
+#   qtrees, quotas...)
+# - Taking 'ontap_svm_name' to discovery and delete all resources on the cluster
 #
 ################################################################################
-- hosts:        "{{ ontap_cluster_name }}"
+- hosts:                          "{{ ontap_cluster_name }}"
   gather_facts: false
   vars:
-    ontap_ansiblerole_action:    "create"
-  
+    ontap_ansiblerole_action:     "delete"
+    ontap_login: &ontap_login
+      hostname:                   "{{ ontap_hostname }}"
+      username:                   "{{ ontap_username }}"
+      password:                   "{{ ontap_password }}"
+      https:                      true
+      validate_certs:             false
+      use_rest:                   Never
+
   tasks:
-  - name: Create SVMs
-    include_role:
-      name:                      ../roles/ontap_svm
+  - name: Extract list of volumes to be created
+    netapp.ontap.na_ontap_rest_info:
+      gather_subset:
+        - storage/volumes
+      parameters:
+        svm.name:                 "{{ ontap_svm_name }}"
+      fields:
+        - 'is_svm_root'
+      <<: *ontap_login
+    register: ontap_svm_volumes
 
-  - name: Get volumes to be created
-    ansible.builtin.set_fact:
-      task_vol_list:             "{{ item.volumes }}"
-    loop:
-      "{{ hostvars[ontap_cluster_name].svms | list }}"
-    loop_control:
-      label: "{{ item.name }}"
-    when:
-      - item.name == ontap_svm_name
-
-  - name: Create SVM volumes
+  - name: Delete SVM volumes
     include_role:
-      name:                      ../roles/ontap_volume
+      name:                       ../roles/ontap_volume
     vars:
-      __ontap_volume_input__:    "{{ item }}"
-      ontap_volume_name:         "{{ item.name }}"
+      __ontap_volume_input__:     "{{ task_vol_item }}"
+      __ontap_ansiblerole_action__:
+                                  "{{ ontap_ansiblerole_action }}"
     loop:
-      "{{ task_vol_list | list }}"
+      "{{ ontap_svm_volumes.ontap_info['storage/volumes'].records | list }}"
     loop_control:
-      label: "{{ item.name }}"
-
-  - name: Get Qtrees to be created
-    ansible.builtin.set_fact:
-      task_qt_list:              "{{ task_qt_list |
-                                    default ([]) + item.1.qtrees
-                                    }}"
-    loop:
-      "{{ q('subelements', hostvars[ontap_cluster_name].svms, 'volumes') }}"
-    loop_control:
-      label: "{{ item.0.name }}:{{ item.1.name }}"
+      label:    "{{ task_vol_item.name }}"
+      loop_var: task_vol_item
     when:
-      - item.0.name == ontap_svm_name
+      - not task_vol_item.is_svm_root
 
-  - name: Create SVM qtrees from Inventory
+  - name: Delete SVM
     include_role:
-      name:                      ../roles/ontap_qtree
+      name:                       ../roles/ontap_svm
     vars:
-      __ontap_qtree_input__:    "{{ item }}"
-      ontap_volume_name:        "{{ item.volume.name }}"
-      ontap_qtree_name:         "{{ item.name }}"
-    loop:
-      "{{ task_qt_list | list }}"
-    loop_control:
-      label: "{{ item.name }}"
-
-  - name: Get quotas to be created
-    ansible.builtin.set_fact:
-      task_quota_list:          "{{ item.quota_policies[0].quota_rules }}"
-    loop:
-      "{{ hostvars[ontap_cluster_name].svms | list }}"
-    loop_control:
-      label: "{{ item.name }}"
-    when:
-      - item.name == ontap_svm_name
-
-  - name: Create SVM quotas
-    include_role:
-      name:                      ../roles/ontap_quota_rule
-    vars:
-      __ontap_quota_rule_input__:    "{{ item }}"
-      ontap_volume_name:             "{{ item.volume.name }}"
-      ontap_quota_rule_type:         "{{ item.type }}"
-      ontap_quota_rule_qtree:        "{{ item.qtree.name }}"
-      ontap_quota_rule_users:        "{{ item.users }}"
-      ontap_quota_rule_group:        "{{ item.group.name }}"
-    loop:
-      "{{ task_quota_list | list }}"
-    loop_control:
-      label: "{{ item }}"
+      __ontap_ansiblerole_action__:
+                                  "{{ ontap_ansiblerole_action }}"
