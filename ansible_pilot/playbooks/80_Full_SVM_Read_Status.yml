@@ -40,7 +40,7 @@
     loop:
       "{{ task_lif_list | list }}"
     loop_control:
-      label:    "{{ task_vol_lif.name }}"
+      label:    "{{ task_lif_item.name }}"
       loop_var: task_lif_item
 
   - name: Get list of Volumes to be read
