@@ -75,7 +75,7 @@
     loop:
       "{{ ontap_svm_object.volumes }}"
     loop_control:
-      label:    "{{ task_qt_item.qtrees }}"
+      label:    "Getting Qtrees in Volume: {{ task_qt_item.name }}"
       loop_var: task_qt_item
     when:
       - not (task_qt_item.qtrees | default('') == "")
