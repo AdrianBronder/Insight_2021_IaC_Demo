@@ -137,7 +137,7 @@ ontap_volume_object:
     used:
     snapshot:
       used:
-      reserve_percent:
+      reserve_percent: 7
     metadata:
     available:
     local_tier_footprint:
