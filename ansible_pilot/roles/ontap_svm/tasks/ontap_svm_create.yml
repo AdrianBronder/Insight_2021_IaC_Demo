@@ -12,7 +12,11 @@
 
 - name: Set Connection Details - CIFS setup
   ansible.builtin.set_fact:
+<<<<<<< HEAD
     ad_login: &ad_login
+=======
+    ad_login: &ontap_login
+>>>>>>> bf4b4eded97c34c636475626fb4213e88bb1c198
       admin_username:             "{{ ad_username }}"
       admin_password:             "{{ ad_password }}"
   no_log: true
