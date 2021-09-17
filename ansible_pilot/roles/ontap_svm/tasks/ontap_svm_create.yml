@@ -10,6 +10,16 @@
       use_rest:                   Never
   no_log: true
 
+- name: Set Connection Details - CIFS setup
+  ansible.builtin.set_fact:
+    ad_login: &ontap_login
+      admin_username:             "{{ ad_username }}"
+      admin_password:             "{{ ad_password }}"
+  no_log: true
+  when:
+    - not (ad_username | default('')) == ""
+    - not (ad_password | default('')) == ""
+
 - name: Create SVM
   na_ontap_svm:
     state:                        present
@@ -54,3 +64,17 @@
     - ontap_ip_interface_name is defined
     - ontap_svm_object.dns.domains[0] is defined
     - ontap_svm_object.dns.servers[0] is defined
+
+- name: Configure CIFS
+  na_ontap_cifs:
+    state:                        present
+    vserver:                      "{{ ontap_svm_object.name }}"
+    name:                         "{{ ontap_svm_object.cifs.name }}"
+    service_state:                started
+    domain:                       "{{ ontap_svm_object.cifs.ad_domain.fqdn }}"
+    <<: *ad_login
+    <<: *ontap_login
+  when:
+    - ad_login is defined
+    - not (ontap_svm_object.cifs.name | default('')) == ""
+    - not (ontap_svm_object.cifs.ad_domain.fqdn | default('')) == ""

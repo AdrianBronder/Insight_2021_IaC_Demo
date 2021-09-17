@@ -47,7 +47,7 @@
       description:               "Git repository with ready to use Ansible demos"
       organization:              "NetApp LoD"
       scm_type:                  "git"
-      scm_url:                   "https://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@github.com/CXO-Automation/awx_mirko_test"
+      scm_url:                   "https://github.com/CXO-Automation/awx_mirko_test"
       scm_branch:                "badrian_dev"
       scm_update_on_launch:      True
       scm_update_cache_timeout:  60
@@ -83,6 +83,38 @@
       inputs:
         ontap_username:          "admin"
         ontap_password:          "Netapp1!"
+      <<: *input
+
+  - name: Create Custom Credential Type for ONTAP CIFS Setup
+    tower_credential_type:
+      state:                     present
+      name:                      "ONTAP AD Login"
+      description:               "Default AD Login for ONTAP CIFS Setup"
+      kind:                      "cloud"
+      inputs:
+        fields:
+          - id:                  "ad_username"
+            type:                "string"
+            label:               "Username"
+          - id:                  "ad_password"
+            type:                "string"
+            label:               "Password"
+            secret:              True
+      injectors:
+        extra_vars:
+          ad_username:        "{{ '{{ ad_username }}' }}"
+          ad_password:        "{{ '{{ ad_password }}' }}"
+      <<: *input
+
+  - name: Create ONTAP CIFS Setup default credential
+    tower_credential:
+      state:                     present
+      name:                      "ONTAP AD Login Default Credentials"
+      credential_type:           "ONTAP AD Login"
+      organization:              "NetApp LoD"
+      inputs:
+        ad_username:             "Administrator"
+        ad_password:             "Netapp1!"
       <<: *input
 
   - name: Add LoD Inventory
