@@ -25,6 +25,8 @@
   - name: Get list of IP Interfaces to be created
     ansible.builtin.set_fact:
       task_lif_list:              "{{ ontap_svm_object.ip_interfaces }}"
+    when:
+      - not (ontap_svm_object.ip_interfaces | default('') == "")
 
   - name: Create SVM IP Interfaces
     include_role:
@@ -40,10 +42,14 @@
     loop_control:
       label:    "{{ task_lif_item.name }}"
       loop_var: task_lif_item
+    when:
+      - not (task_lif_list | default('') == "")
 
   - name: Get list of Volumes to be created
     ansible.builtin.set_fact:
-      task_vol_list:              "{{ ontap_svm_object.volumes | default('') }}"
+      task_vol_list:              "{{ ontap_svm_object.volumes }}"
+    when:
+      - not (ontap_svm_object.volumes | default('') == "")
 
   - name: Create SVM Volumes
     include_role:
@@ -92,7 +98,9 @@
 
   - name: Get Quota Rules to be created
     ansible.builtin.set_fact:
-      task_quota_rule_list:      "{{ ontap_svm_object.quota_policies[0].quota_rules | default('') }}"
+      task_quota_rule_list:      "{{ ontap_svm_object.quota_policies[0].quota_rules }}"
+    when:
+      - not (ontap_svm_object.quota_policies[0].quota_rules | default('') == "")
 
   - name: Create SVM Quota Rules
     include_role:
