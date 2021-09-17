@@ -4,7 +4,10 @@
   vars:
     ontap_ansiblerole_action:     "create"
   
-  roles:
-  - role: ../roles/ontap_svm
+  tasks:
+  - name: Create SVM
+    include_role:
+      name:                       ../roles/ontap_svm
     vars:
-      __ontap_ansiblerole_action: "{{ }}"
+      __ontap_ansiblerole_action__:
+                                  "{{ ontap_ansiblerole_action }}"

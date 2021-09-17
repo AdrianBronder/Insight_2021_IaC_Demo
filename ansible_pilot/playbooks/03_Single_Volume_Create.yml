@@ -4,5 +4,10 @@
   vars:
     ontap_ansiblerole_action:     "create"
   
-  roles:
-  - role: ../roles/ontap_volume
+  tasks:
+  - name: Create Volume
+    include_role:
+      name:                       ../roles/ontap_volume
+    vars:
+      __ontap_ansiblerole_action__:
+                                  "{{ ontap_ansiblerole_action }}"

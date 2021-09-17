@@ -4,5 +4,10 @@
   vars:
     ontap_ansiblerole_action:     "create"
   
-  roles:
-  - role: ../roles/ontap_qtree
+  tasks:
+  - name: Create Quota
+    include_role:
+      name:                       ../roles/ontap_quota
+    vars:
+      __ontap_ansiblerole_action__:
+                                  "{{ ontap_ansiblerole_action }}"

@@ -4,5 +4,10 @@
   vars:
     ontap_ansiblerole_action:     "create"
   
-  roles:
-  - role: ../roles/ontap_ip_interface
+  tasks:
+  - name: Create IP Interface
+    include_role:
+      name:                       ../roles/ontap_ip_interface
+    vars:
+      __ontap_ansiblerole_action__:
+                                  "{{ ontap_ansiblerole_action }}"
