@@ -43,7 +43,7 @@
 
   - name: Get list of Volumes to be created
     ansible.builtin.set_fact:
-      task_vol_list:              "{{ ontap_svm_object.volumes }}"
+      task_vol_list:              "{{ ontap_svm_object.volumes | default('') }}"
 
   - name: Create SVM Volumes
     include_role:
@@ -58,6 +58,8 @@
     loop_control:
       label:    "{{ task_vol_item.name }}"
       loop_var: task_vol_item
+    when:
+      - not (task_vol_item.name | default('') == "")
 
   - name: Get Qtrees to be created
     ansible.builtin.set_fact:
@@ -67,8 +69,10 @@
     loop:
       "{{ ontap_svm_object.volumes }}"
     loop_control:
-      label:    "{{ task_qt_item.qtrees | default('no qtrees found')}}"
+      label:    "{{ task_qt_item.qtrees }}"
       loop_var: task_qt_item
+    when:
+      - not (task_qt_item.qtrees | default('') == "")
 
   - name: Create SVM Qtrees
     include_role:
@@ -83,10 +87,12 @@
     loop_control:
       label:    "{{ task_qt_item.name }}"
       loop_var: task_qt_item
+    when:
+      - not (task_qt_list | default('') == "")
 
   - name: Get Quota Rules to be created
     ansible.builtin.set_fact:
-      task_quota_rule_list:      "{{ ontap_svm_object.quota_policies[0].quota_rules }}"
+      task_quota_rule_list:      "{{ ontap_svm_object.quota_policies[0].quota_rules | default('') }}"
 
   - name: Create SVM Quota Rules
     include_role:
@@ -101,3 +107,5 @@
     loop_control:
       label:    "{{ task_quota_rule_item }}"
       loop_var: task_quota_rule_item
+    when:
+      - not (task_quota_rule_list | default('') == "")

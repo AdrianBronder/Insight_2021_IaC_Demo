@@ -486,7 +486,7 @@ svms:
         svm:
           name:                   pri_svm_02
         ip:
-          address:                192.168.0.200
+          address:                192.168.0.210
           netmask:                255.255.255.0
           family:                 ipv4
         service_policy:
