@@ -1,0 +1,37 @@
+---
+# defaults file for ontap_quota_rule
+################################################################################
+# 
+# Description:
+# -----------
+# - Defaults reflect ONTAP REST data model
+# - Uncomment required parmeters/lines, that should be added as defaults
+# 
+# Caution:
+# -------
+# - When uncommenting parameters, make sure parent items are uncommented as well
+# - Standard Ansible precedence is applied (e.g. extra_vars and playbook vars
+#   will overwrite defaults specified in this file)
+#   --> https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable
+# 
+################################################################################
+
+ontap_quota_rule_object:
+#  volume:
+#    name:
+#  files:
+#    hard_limit:
+#    soft_limit:
+#  users:
+#    - name:
+#  uuid:
+#  space:
+#    hard_limit:
+#    soft_limit:
+#  qtree:
+#    name:
+#    id:
+#  user_mapping:
+#  type:
+#  svm:
+#    name:

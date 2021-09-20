@@ -1,0 +1,39 @@
+---
+# defaults file for ontap_qtree
+################################################################################
+# 
+# Description:
+# -----------
+# - Defaults reflect ONTAP REST data model
+# - Uncomment required parmeters/lines, that should be added as defaults
+# 
+# Caution:
+# -------
+# - When uncommenting parameters, make sure parent items are uncommented as well
+# - Standard Ansible precedence is applied (e.g. extra_vars and playbook vars
+#   will overwrite defaults specified in this file)
+#   --> https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable
+# 
+################################################################################
+
+ontap_qtree_object:
+#  name:
+#  path:
+#  security_style:
+#  unix_permissions:
+#  id:
+#  export_policy:
+#    id:
+#    name:
+#  user:
+#    id:
+#    name:
+#  group:
+#    id:
+#    name:
+#  svm:
+#    name:
+#    uuid:
+#  volume:
+#    name:
+#    uuid:

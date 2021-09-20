@@ -1,0 +1,49 @@
+---
+# defaults file for ontap_ip_interface
+################################################################################
+# 
+# Description:
+# -----------
+# - Defaults reflect ONTAP REST data model
+# - Uncomment required parmeters/lines, that should be added as defaults
+# 
+# Caution:
+# -------
+# - When uncommenting parameters, make sure parent items are uncommented as well
+# - Standard Ansible precedence is applied (e.g. extra_vars and playbook vars
+#   will overwrite defaults specified in this file)
+#   --> https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable
+# 
+################################################################################
+
+ontap_ip_interface_object:
+#  location:
+#    auto_revert:
+#    home_node:
+#      name:
+#      uuid:
+#    failover:
+#    home_port:
+#      name:
+#      uuid:
+#      node:
+#        name:
+#    broadcast_domain:
+#      name:
+#      uuid:
+#  ip:
+#    netmask:
+#    address:
+#  name:
+#  ipspace:
+#    name:
+#    uuid:
+#  vip:
+#  svm:
+#    name:
+#    uuid:
+#  service_policy:
+#    name:
+#    uuid:
+#  enabled:
+#  scope:
