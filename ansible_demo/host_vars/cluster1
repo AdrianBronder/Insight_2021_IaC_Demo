@@ -67,8 +67,8 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:          
-        aggregates:       
+        comment:
+        aggregates:
           - name:                 aggr1_cluster1_01
             uuid:
         guarantee:
@@ -93,7 +93,7 @@ svms:
             id:
           unix_permissions:
           gid:
-        language:      
+        language:
         quota:
           state:
         files:
@@ -181,8 +181,8 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:          
-        aggregates:       
+        comment:
+        aggregates:
           - name:                 aggr1_cluster1_01
             uuid:
         guarantee:
@@ -207,7 +207,7 @@ svms:
             id:
           unix_permissions:
           gid:
-        language:      
+        language:
         quota:
           state:
         files:
@@ -519,8 +519,8 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:          
-        aggregates:       
+        comment:
+        aggregates:
           - name:                 aggr1_cluster1_02
             uuid:
         guarantee:
@@ -545,7 +545,7 @@ svms:
             id:
           unix_permissions:
           gid:
-        language:      
+        language:
         quota:
           state:
         files:
@@ -633,8 +633,8 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:          
-        aggregates:       
+        comment:
+        aggregates:
           - name:                 aggr1_cluster1_02
             uuid:
         guarantee:
@@ -987,8 +987,8 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:          
-        aggregates:       
+        comment:
+        aggregates:
           - name:                 aggr1_cluster1_01
             uuid:
         guarantee:
@@ -1040,8 +1040,8 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:          
-        aggregates:       
+        comment:
+        aggregates:
           - name:                 aggr1_cluster1_01
             uuid:
         guarantee:
@@ -1093,8 +1093,8 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:          
-        aggregates:       
+        comment:
+        aggregates:
           - name:                 aggr1_cluster1_01
             uuid:
         guarantee:
