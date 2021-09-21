@@ -13,7 +13,7 @@
 - name: Delete Qtree
   na_ontap_qtree:
     state:                        absent
-    name:                         "{{ ontap_qtree_object.name }}"
-    flexvol_name:                 "{{ ontap_qtree_object.volume.name }}"
-    vserver:                      "{{ ontap_qtree_object.svm.name }}"
+    name:                         "{{ __ontap_qtree_object__.name }}"
+    flexvol_name:                 "{{ __ontap_qtree_object__.volume.name }}"
+    vserver:                      "{{ __ontap_qtree_object__.svm.name }}"
     <<: *ontap_login

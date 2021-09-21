@@ -15,19 +15,19 @@
     gather_subset:
       - svm/svms
     parameters:
-      name:                       "{{ ontap_svm_object.name }}"
+      name:                       "{{ __ontap_svm_object__.name }}"
     fields:
 # FIXME - List of required fields has to be added for to improve overall efficiency
       - '**'
     <<: *ontap_login
-  register: __ontap_svm_input__
+  register: __ontap_svm_return__
 
-- name: Set __ontap_svm_input__
+- name: Set __ontap_svm_return_clean__
   ansible.builtin.set_fact:
-    ontap_svm_object: "{{ __ontap_svm_input__.ontap_info['svm/svms'].records[0] }}"
+    __ontap_svm_return_clean__: "{{ __ontap_svm_return__.ontap_info['svm/svms'].records[0] }}"
   when:
-  - __ontap_svm_input__.ontap_info['svm/svms'].num_records == 1
+  - __ontap_svm_return__.ontap_info['svm/svms'].num_records == 1
 
-- name: Debug ontap_svm_object
+- name: Debug __ontap_svm_return_clean__
   ansible.builtin.debug:
-    msg: "{{ ontap_svm_object }}"
+    msg: "{{ __ontap_svm_return_clean__ }}"

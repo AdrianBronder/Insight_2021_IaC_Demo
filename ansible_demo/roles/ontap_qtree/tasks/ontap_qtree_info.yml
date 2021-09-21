@@ -15,21 +15,21 @@
     gather_subset:
       - storage/qtree
     parameters:
-      svm.name:                   "{{ ontap_qtree_object.svm.name }}"
-      volume.name:                "{{ ontap_qtree_object.volume.name }}"
-      name:                       "{{ ontap_qtree_object.name }}"
+      svm.name:                   "{{ __ontap_qtree_object__.svm.name }}"
+      volume.name:                "{{ __ontap_qtree_object__.volume.name }}"
+      name:                       "{{ __ontap_qtree_object__.name }}"
     fields:
 # FIXME - List of required fields has to be added for to improve overall efficiency
       - '**'
     <<: *ontap_login
-  register: __ontap_qtree_input__
+  register: __ontap_qtree_return__
 
-- name: Set ontap_qtree_object
+- name: Set __ontap_qtree_return_clean__
   ansible.builtin.set_fact:
-    ontap_qtree_object: "{{ __ontap_qtree_input__.ontap_info['storage/qtrees'].records[0] }}"
+    __ontap_qtree_return_clean__: "{{ __ontap_qtree_return__.ontap_info['storage/qtrees'].records[0] }}"
   when:
-  - __ontap_qtree_input__.ontap_info['storage/qtrees'].num_records == 1
+  - __ontap_qtree_return__.ontap_info['storage/qtrees'].num_records == 1
 
-- name: Debug ontap_qtree_object
+- name: Debug __ontap_qtree_return_clean__
   ansible.builtin.debug:
-    msg: "{{ ontap_qtree_object }}"
+    msg: "{{ __ontap_qtree_return_clean__ }}"

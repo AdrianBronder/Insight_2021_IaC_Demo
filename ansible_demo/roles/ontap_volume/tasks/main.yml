@@ -1,93 +1,100 @@
 ---
 # tasks file for ontap_volume
-##############################################################
-### Run Pre-steps
-##############################################################
+################################################################################
+#
+# Variables accepted by this role:
+# -------------------------------
+#
+# Mandatory:
+# __ontap_ansiblerole_action__:        create, delete, info
+# __ontap_volume_input__:              Input object with additional optional
+#                                      parameters to action on
+#                                      (according to SVM data model)
+#                    Mandatory childs: .name     - Volume name
+#                                      .svm.name - Owning SVM
+#
+# Optional:
+# __ontap_source_inventory__:          Source object input from Ansible
+#                                      inventory and host/group vars
+# 
+################################################################################
+
+
+
+################################################################################
+### Run role input validation
+################################################################################
 
 - name: Validate Mandatory Input
   fail:
     msg:
-      - "You must either pass 'ontap_volume_name' and 'ontap_svm_name' 
-        or '__ontap_volume_input__' including child(s): .name, .svm.name"
-      - "> ontap_svm_name:                  {{ ontap_svm_name | default('') }}"
-      - "> ontap_volume_name:               {{ ontap_volume_name | default('') }}"
+      - "You must provide '__ontap_volume_input__' including child(s):
+        .name, .svm.name"
+      - "and '__ontap_ansiblerole_action__'"
       - "> __ontap_volume_input__.svm.name: {{ __ontap_volume_input__.svm.name | default ('') }}"
       - "> __ontap_volume_input__.name:     {{ __ontap_volume_input__.name | default ('') }}"
+      - "> __ontap_ansiblerole_action__:    {{ __ontap_ansiblerole_action__ | default ('') }}"
   when:
-    - ((ontap_svm_name    | default('') == "" or
-        ontap_volume_name | default('') == ""
-        ) and
-       (__ontap_volume_input__.svm.name | default('') == "" or
-        __ontap_volume_input__.name     | default('') == ""
-        ))
+    - (__ontap_volume_input__.svm.name | default('') == "" or
+       __ontap_volume_input__.name     | default('') == ""
+       )
+    - "> __ontap_volume_input__.name: {{ __ontap_volume_input__.name | default ('') }}"
   tags:
     - always
 
-- name: Validate Action
-  fail:
-    msg:
-      - "You must pass the '__ontap_ansiblerole_action__' variable"
-  when:
-    - __ontap_ansiblerole_action__ is undefined
-  tags:
-    - always
 
-- name: Add mandatory Input to Volume object
-  ansible.builtin.set_fact:
-    ontap_volume_object:
-      svm:
-        name:                "{{ ontap_svm_name }}"
-      name:                  "{{ ontap_volume_name }}"
-  when:
-    - not (ontap_volume_name | default('') == "")
-      
+
+################################################################################
+### Source input parameters into object
+################################################################################
+
 - name: Source Inventory Information
   block:
     - name: Find SVM
       ansible.builtin.set_fact:
-        ontap_svm_object: "{{ svm_item }}"
+        ___ontap_svm_object__: "{{ svm_item }}"
       loop:
         "{{ svms | list }}"
       loop_control:
         label:    "{{ svm_item.name }}"
         loop_var: svm_item
       when:
-        - svm_item.name == ontap_svm_name
+        - svm_item.name == __ontap_volume_input__.svm.name
     - name: Find Volume
       ansible.builtin.set_fact:
-        ontap_volume_object: "{{ volume_item }}"
+        __ontap_volume_object__: "{{ volume_item }}"
       loop:
-        "{{ ontap_svm_object.volumes | list }}"
+        "{{ ___ontap_svm_object__.volumes | list }}"
       loop_control:
         label:    "{{ volume_item.name }}"
         loop_var: volume_item
       when:
-        - volume_item.name == ontap_volume_name
+        - volume_item.name == __ontap_volume_input__.name
   when:
-    - __source_inventory__ is defined
-    - __source_inventory__
+    - __ontap_source_inventory__ is defined
+    - __ontap_source_inventory__
 
 - name: Merge Defaults/Vars with Input
   ansible.builtin.set_fact:
-    ontap_volume_object: "{{ ontap_volume_object | combine(__ontap_volume_input__, recursive=True) }}"
-  when:
-    - __ontap_volume_input__ is defined
+    __ontap_volume_object__: "{{ __ontap_volume_object__ | default({}) | combine(__ontap_volume_input__, recursive=True) }}"
 
 - name: Verify Data Sourcing
   fail:
     msg:
       - "Mandatory data could not be sourced:"
-      - "> ontap_volume_object.svm.name --> {{ ontap_volume_object.svm.name }}"
-      - "> ontap_volume_object.name     --> {{ ontap_volume_object.name }}"
+      - "> __ontap_volume_object__.svm.name --> {{ ontap_volume_object.svm.name }}"
+      - "> __ontap_volume_object__.name     --> {{ ontap_volume_object.name }}"
   when:
-    - ontap_volume_object.svm.name | default('') == "" or
-      ontap_volume_object.name     | default('') == ""
+    - __ontap_volume_object__.svm.name | default('') == "" or
+      __ontap_volume_object__.name     | default('') == ""
   tags:
     - always
 
-##############################################################
-### Initiate Action
-##############################################################
+
+
+################################################################################
+### Initiate role action
+################################################################################
 
 - name: Read Volume Information into 'ontap_volume_object'
   include_tasks:      ontap_volume_info.yml

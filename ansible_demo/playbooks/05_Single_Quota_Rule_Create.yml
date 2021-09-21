@@ -2,24 +2,22 @@
 ################################################################################
 # Description:
 # -----------
-# - Creating a single SVM 
-# - Taking 'ontap_svm_input' with additional optional parameters
-#   or sourcing SVM state from the inventory by taking ontap_svm_input.name and
-#   'source_inventory=true'
+# - Creating a single qtree 
+# - Taking 'ontap_quota_input' with additional optional parameters
+#   or sourcing quota state from the inventory by taking 
+#   ontap_quota_input.type and 'source_inventory=true'
 ################################################################################
 - hosts:                          "{{ ontap_cluster_name }}"
   gather_facts: false
   vars:
     ontap_ansiblerole_action:     "create"
-
+  
   tasks:
-  - name: Create SVM
+  - name: Create Quota Rule
     include_role:
-      name:                       ../roles/ontap_svm
+      name:                       ../roles/ontap_quota_rule
     vars:
       __ontap_ansiblerole_action__:
                                   "{{ ontap_ansiblerole_action }}"
       __ontap_source_inventory__: "{{ source_inventory | default(false) }}"
-      __ontap_svm_input__:        "{{ ontap_svm_input }}"
-      __ontap_ip_interface_name__:
-                                  "{{ ontap_ip_interface_name }}" 
+      __ontap_quota_input__:      "{{ ontap_quota_input }}"

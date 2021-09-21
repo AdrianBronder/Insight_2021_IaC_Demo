@@ -4,11 +4,12 @@
 # -----------
 # - Deleting an entire SVM with all child items (ip_interfaces, volumes,
 #   qtrees, quotas...)
-# - Taking 'ontap_svm_name' to discovery and delete all resources on the cluster
+# - Taking .name from 'ontap_svm_input' to discovery and delete all SVM related
+#   resources on the cluster
 #
 ################################################################################
 - hosts:                          "{{ ontap_cluster_name }}"
-  gather_facts: false
+  gather_facts:                   false
   vars:
     ontap_ansiblerole_action:     "delete"
     ontap_login: &ontap_login
@@ -25,7 +26,7 @@
       gather_subset:
         - storage/volumes
       parameters:
-        svm.name:                 "{{ ontap_svm_name }}"
+        svm.name:                 "{{ ontap_svm_input.name }}"
       fields:
         - 'is_svm_root'
       <<: *ontap_login
@@ -52,3 +53,4 @@
     vars:
       __ontap_ansiblerole_action__:
                                   "{{ ontap_ansiblerole_action }}"
+      __ontap_svm_input__:        "{{ ontap_svm_input }}"

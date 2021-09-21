@@ -2,15 +2,13 @@
 ################################################################################
 # Description:
 # -----------
-# - Creating a single SVM 
+# - Reading a single SVM 
 # - Taking 'ontap_svm_input' with additional optional parameters
-#   or sourcing SVM state from the inventory by taking ontap_svm_input.name and
-#   'source_inventory=true'
 ################################################################################
 - hosts:                          "{{ ontap_cluster_name }}"
   gather_facts: false
   vars:
-    ontap_ansiblerole_action:     "create"
+    ontap_ansiblerole_action:     "info"
 
   tasks:
   - name: Create SVM
@@ -21,5 +19,3 @@
                                   "{{ ontap_ansiblerole_action }}"
       __ontap_source_inventory__: "{{ source_inventory | default(false) }}"
       __ontap_svm_input__:        "{{ ontap_svm_input }}"
-      __ontap_ip_interface_name__:
-                                  "{{ ontap_ip_interface_name }}" 

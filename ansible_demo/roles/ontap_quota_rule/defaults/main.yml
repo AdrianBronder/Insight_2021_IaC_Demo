@@ -16,7 +16,7 @@
 # 
 ################################################################################
 
-ontap_quota_rule_object:
+__ontap_quota_rule_object__:
 #  volume:
 #    name:
 #  files:

@@ -1,9 +1,0 @@
----
-- hosts:        "{{ ontap_cluster_name }}"
-  gather_facts: false
-  vars:
-    ontap_ansiblerole_action:     "delete"
-
-  roles:
-  - role: ../roles/ontap_volume
-  - role: ../roles/ontap_svm

@@ -2,24 +2,20 @@
 ################################################################################
 # Description:
 # -----------
-# - Creating a single SVM 
-# - Taking 'ontap_svm_input' with additional optional parameters
-#   or sourcing SVM state from the inventory by taking ontap_svm_input.name and
-#   'source_inventory=true'
+# - Reading a single volume 
+# - Taking 'ontap_volume_input' with additional optional parameters
 ################################################################################
 - hosts:                          "{{ ontap_cluster_name }}"
   gather_facts: false
   vars:
-    ontap_ansiblerole_action:     "create"
+    ontap_ansiblerole_action:     "info"
 
   tasks:
-  - name: Create SVM
+  - name: Create Volume
     include_role:
-      name:                       ../roles/ontap_svm
+      name:                       ../roles/ontap_volume
     vars:
       __ontap_ansiblerole_action__:
                                   "{{ ontap_ansiblerole_action }}"
       __ontap_source_inventory__: "{{ source_inventory | default(false) }}"
-      __ontap_svm_input__:        "{{ ontap_svm_input }}"
-      __ontap_ip_interface_name__:
-                                  "{{ ontap_ip_interface_name }}" 
+      __ontap_volume_input__:     "{{ ontap_volume_input }}"

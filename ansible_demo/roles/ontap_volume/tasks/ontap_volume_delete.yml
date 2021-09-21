@@ -13,6 +13,6 @@
 - name: Delete Volume
   na_ontap_volume:
     state:                        absent
-    name:                         "{{ ontap_volume_object.name }}"
-    vserver:                      "{{ ontap_volume_object.svm.name }}"
+    name:                         "{{ __ontap_volume_object__.name }}"
+    vserver:                      "{{ __ontap_volume_object__.svm.name }}"
     <<: *ontap_login

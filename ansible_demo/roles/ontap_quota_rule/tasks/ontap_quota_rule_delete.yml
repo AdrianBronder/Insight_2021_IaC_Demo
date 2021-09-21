@@ -13,38 +13,38 @@
 - name: Delete Tree Quota
   na_ontap_quotas:
     state:                        present
-    vserver:                      "{{ ontap_quota_rule_object.svm.name }}"
-    type:                         "{{ ontap_quota_rule_object.type }}"
-    volume:                       "{{ ontap_quota_rule_object.volume.name }}"
-    quota_target:                 "{{ ontap_quota_rule_object.qtree.name }}"
+    vserver:                      "{{ __ontap_quota_rule_object__.svm.name }}"
+    type:                         "{{ __ontap_quota_rule_object__.type }}"
+    volume:                       "{{ __ontap_quota_rule_object__.volume.name }}"
+    quota_target:                 "{{ __ontap_quota_rule_object__.qtree.name }}"
 # FIXME - Policy is always "default". ONTAP REST currently does not allow managing custom quota policies
     policy:                       default
     activate_quota_on_change:     resize
     <<: *ontap_login
   when:
-    - ontap_quota_rule_object.type == "tree"
+    - __ontap_quota_rule_object__.type == "tree"
 - name: Delete User Quota
     state:                        present
-    vserver:                      "{{ ontap_quota_rule_object.svm.name }}"
-    type:                         "{{ ontap_quota_rule_object.type }}"
-    volume:                       "{{ ontap_quota_rule_object.volume.name }}"
+    vserver:                      "{{ __ontap_quota_rule_object__.svm.name }}"
+    type:                         "{{ __ontap_quota_rule_object__.type }}"
+    volume:                       "{{ __ontap_quota_rule_object__.volume.name }}"
 # FIXME - Not evaluated with users
-    quota_target:                 "{{ ontap_quota_rule_object.users.name }}"
+    quota_target:                 "{{ __ontap_quota_rule_object__.users.name }}"
 # FIXME - Policy is always "default". ONTAP REST currently does not allow managing custom quota policies
     policy:                       default
     activate_quota_on_change:     resize
     <<: *ontap_login
   when:
-    - ontap_quota_rule_object.type == "user"
+    - __ontap_quota_rule_object__.type == "user"
 - name: Delete Group Quota
     state:                        present
-    vserver:                      "{{ ontap_quota_rule_object.svm.name }}"
-    type:                         "{{ ontap_quota_rule_object.type }}"
-    volume:                       "{{ ontap_quota_rule_object.volume.name }}"
-    quota_target:                 "{{ ontap_quota_rule_object.group.name }}"
+    vserver:                      "{{ __ontap_quota_rule_object__.svm.name }}"
+    type:                         "{{ __ontap_quota_rule_object__.type }}"
+    volume:                       "{{ __ontap_quota_rule_object__.volume.name }}"
+    quota_target:                 "{{ __ontap_quota_rule_object__.group.name }}"
 # FIXME - Policy is always "default". ONTAP REST currently does not allow managing custom quota policies
     policy:                       default
     activate_quota_on_change:     resize
     <<: *ontap_login
   when:
-    - ontap_quota_rule_object.type == "group"
+    - __ontap_quota_rule_object__.type == "group"

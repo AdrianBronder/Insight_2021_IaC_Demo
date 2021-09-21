@@ -2,17 +2,17 @@
 
 ################################################################################
 #
-# Title:        sl10599_init_awx.yml
+# Title:        sl10599_init_awx_demo.yml
 # Author:       Adrian Bronder
-# Date:         2020-10-13
-# Description:  Configure AWX on rhel1
+# Date:         2021-09-21
+# Description:  Configure AWX on LoD host "ansible"
 #
 # Collections:  awx.awx
 #
 # URL:          https://galaxy.ansible.com/awx/awx
 #
 # Built-in help:
-# ansible-doc netapp.ontap.na_ontap_svm
+# ansible-doc awx.awx.*
 #
 ################################################################################
 
@@ -163,7 +163,7 @@
           description:           "SVM to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_svm_name"
+          variable:              "ontap_svm_input.name"
         - question_name:         "Management Interface Name"
           description:           "LIF to act on"
           required:              False
@@ -175,7 +175,33 @@
           type:                  "multiplechoice"
           choices:               "false\ntrue"
           variable:              "source_inventory"
+      <<: *input
 
+  - name: Create Job Template for "Single SVM Info"
+    tower_job_template:
+      state:                     present
+      name:                      "Single SVM Info"
+      job_type:                  "run"
+      inventory:                 "LoD Inventory"
+      project:                   "LoD Demo - Ansible Pilot"
+      playbook:                  "ansible_demo/playbooks/01_Single_SVM_Info.yml"
+      credential:                "ONTAP Default Credentials"
+      ask_variables_on_launch:   "yes"
+      survey_enabled:            "yes"
+      survey_spec:
+        name:                    "Default Survey for 'Single SVM Info'"
+        description:             ""
+        spec:
+        - question_name:         "Cluster Name"
+          description:           "ONTAP Cluster to act on"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_cluster_name"
+        - question_name:         "SVM Name"
+          description:           "SVM to act on"
+          required:              False
+          type:                  "text"
+          variable:              "ontap_svm_input.name"
       <<: *input
 
   - name: Create Job Template for "Single IP Interface Create"
@@ -202,12 +228,12 @@
           description:           "SVM to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_svm_name"
+          variable:              "ontap_ip_interface_input.svm.name"
         - question_name:         "IP Interface Name"
           description:           "LIF to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_ip_interface_name"
+          variable:              "ontap_ip_interface_input.name"
         - question_name:         "Source Inventory?"
           description:           "Should the data be retreived from an Ansible Inventory?"
           required:              False
@@ -240,18 +266,50 @@
           description:           "SVM to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_svm_name"
+          variable:              "ontap_volume_input.svm.name"
         - question_name:         "Volume Name"
           description:           "Volume to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_volume_name"
+          variable:              "ontap_volume_input.name"
         - question_name:         "Source Inventory?"
           description:           "Should the data be retreived from an Ansible Inventory?"
           required:              False
           type:                  "multiplechoice"
           choices:               "false\ntrue"
           variable:              "source_inventory"
+      <<: *input
+
+  - name: Create Job Template for "Single Volume Info"
+    tower_job_template:
+      state:                     present
+      name:                      "Single Volume Info"
+      job_type:                  "run"
+      inventory:                 "LoD Inventory"
+      project:                   "LoD Demo - Ansible Pilot"
+      playbook:                  "ansible_demo/playbooks/03_Single_Volume_Info.yml"
+      credential:                "ONTAP Default Credentials"
+      ask_variables_on_launch:   "yes"
+      survey_enabled:            "yes"
+      survey_spec:
+        name:                    "Default Survey for 'Single Volume Info'"
+        description:             ""
+        spec:
+        - question_name:         "Cluster Name"
+          description:           "ONTAP Cluster to act on"
+          required:              True
+          type:                  "text"
+          variable:              "ontap_cluster_name"
+        - question_name:         "SVM Name"
+          description:           "SVM to act on"
+          required:              False
+          type:                  "text"
+          variable:              "ontap_volume_input.svm.name"
+        - question_name:         "Volume Name"
+          description:           "Volume to act on"
+          required:              False
+          type:                  "text"
+          variable:              "ontap_volume_input.name"
       <<: *input
 
   - name: Create Job Template for "Single Qtree Create"
@@ -278,17 +336,17 @@
           description:           "SVM to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_svm_name"
+          variable:              "ontap_qtree_input.svm.name"
         - question_name:         "Volume Name"
           description:           "Volume to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_volume_name"
+          variable:              "ontap_qtree_input.volume.name"
         - question_name:         "Qtree Name"
           description:           "Qtree to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_qtree_name"
+          variable:              "ontap_qtree_input.name"
         - question_name:         "Source Inventory?"
           description:           "Should the data be retreived from an Ansible Inventory?"
           required:              False
@@ -297,14 +355,14 @@
           variable:              "source_inventory"
       <<: *input
 
-  - name: Create Job Template for "Single Quota Create"
+  - name: Create Job Template for "Single Quota Rule Create"
     tower_job_template:
       state:                     present
-      name:                      "Single Quota Create"
+      name:                      "Single Quota Rule Create"
       job_type:                  "run"
       inventory:                 "LoD Inventory"
       project:                   "LoD Demo - Ansible Pilot"
-      playbook:                  "ansible_demo/playbooks/05_Single_Quota_Create.yml"
+      playbook:                  "ansible_demo/playbooks/05_Single_Quota_Rule_Create.yml"
       credential:                "ONTAP Default Credentials"
       ask_variables_on_launch:   "yes"
       survey_enabled:            "yes"
@@ -321,18 +379,18 @@
           description:           "SVM to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_svm_name"
+          variable:              "ontap_quota_input.svm.name"
         - question_name:         "Volume Name"
           description:           "Volume to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_volume_name"
+          variable:              "ontap_quota_input.volume.name"
 # FIXME - Requires additional input. Type is obviously not enough
         - question_name:         "Quota Type"
           description:           "Quota to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_quota_type"
+          variable:              "ontap_quota_input.type"
         - question_name:         "Source Inventory?"
           description:           "Should the data be retreived from an Ansible Inventory?"
           required:              False
@@ -365,50 +423,7 @@
           description:           "SVM to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_svm_name"
-        - question_name:         "Source Inventory?"
-          description:           "Should the data be retreived from an Ansible Inventory?"
-          required:              False
-          type:                  "multiplechoice"
-          choices:               "false\ntrue"
-          variable:              "source_inventory"
-      <<: *input
-
-  - name: Create Job Template for "Full SVM Read Status"
-    tower_job_template:
-      state:                     present
-      name:                      "Full SVM Read Status"
-      job_type:                  "run"
-      inventory:                 "LoD Inventory"
-      project:                   "LoD Demo - Ansible Pilot"
-      playbook:                  "ansible_demo/playbooks/80_Full_SVM_Read_Status.yml"
-      credential:                "ONTAP Default Credentials"
-      ask_variables_on_launch:   "yes"
-      survey_enabled:            "yes"
-      survey_spec:
-        name:                    "Default Survey for 'Full SVM Read Status'"
-        description:             ""
-        spec:
-        - question_name:         "Cluster Name"
-          description:           "ONTAP Cluster to act on"
-          required:              True
-          type:                  "text"
-          variable:              "ontap_cluster_name"
-        - question_name:         "SVM Name"
-          description:           "SVM to act on"
-          required:              False
-          type:                  "text"
-          variable:              "ontap_svm_name"
-        - question_name:         "Volume Name"
-          description:           "Volume to act on"
-          required:              False
-          type:                  "text"
-          variable:              "ontap_volume_name"
-        - question_name:         "Qtree Name"
-          description:           "Qtree to act on"
-          required:              False
-          type:                  "text"
-          variable:              "ontap_qtree_name"
+          variable:              "ontap_svm_input.name"
         - question_name:         "Source Inventory?"
           description:           "Should the data be retreived from an Ansible Inventory?"
           required:              False
@@ -441,5 +456,5 @@
           description:           "SVM to act on"
           required:              False
           type:                  "text"
-          variable:              "ontap_svm_name"
+          variable:              "ontap_svm_input.name"
       <<: *input

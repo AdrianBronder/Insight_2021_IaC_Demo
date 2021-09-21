@@ -15,23 +15,23 @@
     gather_subset:
       - storage/quota/rules
     parameters:
-      volume.name:                "{{ ontap_quota_rule_object.volume.name }}"
-      type:                       "{{ ontap_quota_rule_object.type }}"
-      qtree.name:                 "{{ ontap_quota_rule_object.qtree.name | default(omit) }}"
-      users.name:                 "{{ ontap_quota_rule_object.users.name | default(omit) }}"
-      group.name:                 "{{ ontap_quota_rule_object.group.name | default(omit) }}"
+      volume.name:                "{{ __ontap_quota_rule_object__.volume.name }}"
+      type:                       "{{ __ontap_quota_rule_object__.type }}"
+      qtree.name:                 "{{ __ontap_quota_rule_object__.qtree.name | default(omit) }}"
+      users.name:                 "{{ __ontap_quota_rule_object__.users.name | default(omit) }}"
+      group.name:                 "{{ __ontap_quota_rule_object__.group.name | default(omit) }}"
     fields:
 # FIXME - List of required fields has to be added for to improve overall efficiency
       - '**'
     <<: *ontap_login
-  register: __ontap_quota_rule_input__
+  register: __ontap_quota_rule_return__
 
-- name: Set __ontap_quota_rule_input__
+- name: Set __ontap_quota_rule_return_clean__
   ansible.builtin.set_fact:
-    ontap_quota_rule_object: "{{ __ontap_quota_rule_input__.ontap_info['storage/quota/rules'].records[0] }}"
+    __ontap_quota_rule_return_clean__: "{{ __ontap_quota_rule_return__.ontap_info['storage/quota/rules'].records[0] }}"
   when:
-  - __ontap_quota_rule_input__.ontap_info['storage/quota/rules'].num_records == 1
+  - __ontap_quota_rule_return__.ontap_info['storage/quota/rules'].num_records == 1
 
-- name: Debug ontap_quota_rule_object
+- name: Debug __ontap_quota_rule_return_clean__
   ansible.builtin.debug:
-    msg: "{{ ontap_quota_rule_object }}"
+    msg: "{{ __ontap_quota_rule_return_clean__ }}"

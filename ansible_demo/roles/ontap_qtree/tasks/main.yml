@@ -1,111 +1,115 @@
 ---
 # tasks file for ontap_qtree
-##############################################################
-### Run Pre-steps
-##############################################################
+################################################################################
+#
+# Variables accepted by this role:
+# -------------------------------
+#
+# Mandatory:
+# __ontap_ansiblerole_action__:        create, delete, info
+# __ontap_qtree_input__:               Input object with additional optional
+#                                      parameters to action on
+#                                      (according to SVM data model)
+#                    Mandatory childs: .name        - Qtree name
+#                                      .volume.name - Owning volume
+#                                      .svm.name    - Owning SVM
+#
+# Optional:
+# __ontap_source_inventory__:          Source object input from Ansible
+#                                      inventory and host/group vars
+# 
+################################################################################
+
+
+
+################################################################################
+### Run role input validation
+################################################################################
 
 - name: Validate Mandatory Input
   fail:
     msg:
-      - "You must either pass 'ontap_qtree_name', 'ontap_volume_name' and 'ontap_svm_name' 
-        or '__ontap_qtree_input__' including child(s): .name, .volume.name, .svm.name"
-      - "> ontap_svm_name:                    {{ ontap_svm_name | default('') }}"
-      - "> ontap_volume_name:                 {{ ontap_volume_name | default('') }}"
-      - "> ontap_qtree_name:                  {{ ontap_qtree_name | default('') }}"
+      - "You must provide '__ontap_qtree_input__' including child(s):
+        .name, .volume.name, .svm.name"
+      - "and '__ontap_ansiblerole_action__'"
       - "> __ontap_qtree_input__.svm.name:    {{ __ontap_qtree_input__.svm.name | default ('') }}"
       - "> __ontap_qtree_input__.volume.name: {{ __ontap_qtree_input__.volume.name | default ('') }}"
       - "> __ontap_qtree_input__.name:        {{ __ontap_qtree_input__.name | default ('') }}"
+      - "> __ontap_ansiblerole_action__:      {{ __ontap_ansiblerole_action__ | default ('') }}"
   when:
-    - ((ontap_svm_name    | default('') == "" or
-        ontap_volume_name | default('') == "" or
-        ontap_qtree_name  | default('') ==""
-        ) and
-       (__ontap_qtree_input__.name        | default('') == "" or
-        __ontap_qtree_input__.volume.name | default('') == "" or
-        __ontap_qtree_input__.name        | default('') == ""
-        ))
+    - (__ontap_qtree_input__.svm.name    | default('') == "" or
+       __ontap_qtree_input__.volume.name | default('') == "" or
+       __ontap_qtree_input__.name        | default('') == ""
+       )
+    - (__ontap_ansiblerole_action__ | default('')) not in ["create", "delete", "info"]
   tags:
     - always
 
-- name: Validate Action
-  fail:
-    msg:
-      - "You must pass the '__ontap_ansiblerole_action__' variable"
-  when:
-    - __ontap_ansiblerole_action__ is undefined
-  tags:
-    - always
 
-- name: Add mandatory Input to Qtree object
-  ansible.builtin.set_fact:
-    ontap_qtree_object:
-      svm:
-        name:                "{{ ontap_svm_name }}"
-      volume:
-        name:                "{{ ontap_volume_name }}"
-      name:                  "{{ ontap_qtree_name }}"
-  when:
-    - not (ontap_qtree_name  | default('') == "")      
+
+################################################################################
+### Source input parameters into object
+################################################################################
 
 - name: Source Inventory Information
   block:
     - name: Find SVM
       ansible.builtin.set_fact:
-        ontap_svm_object: "{{ svm_item }}"
+        __ontap_svm_object__: "{{ svm_item }}"
       loop:
         "{{ svms | list }}"
       loop_control:
         label:    "{{ svm_item.name }}"
         loop_var: svm_item
       when:
-        - svm_item.name == ontap_svm_name
+        - svm_item.name == __ontap_qtree_input__.svm.name
     - name: Find Volume
       ansible.builtin.set_fact:
-        ontap_volume_object: "{{ volume_item }}"
+        __ontap_volume_object__: "{{ volume_item }}"
       loop:
-        "{{ ontap_svm_object.volumes | list }}"
+        "{{ __ontap_svm_object__.volumes | list }}"
       loop_control:
         label:    "{{ volume_item.name }}"
         loop_var: volume_item
       when:
-        - volume_item.name == ontap_volume_name
+        - volume_item.name == __ontap_qtree_input__.volume.name
     - name: Find Qtree
       ansible.builtin.set_fact:
-        ontap_qtree_object: "{{ qtree_item }}"
+        __ontap_qtree_object__: "{{ qtree_item }}"
       loop:
-        "{{ ontap_volume_object.qtrees | list }}"
+        "{{ __ontap_volume_object__.qtrees | list }}"
       loop_control:
         label:    "{{ qtree_item.name }}"
         loop_var: qtree_item
       when:
-        - qtree_item.name == ontap_qtree_name
+        - qtree_item.name == __ontap_qtree_input__.name
   when:
-    - __source_inventory__ is defined
-    - __source_inventory__
+    - __ontap_source_inventory__ is defined
+    - __ontap_source_inventory__
 
 - name: Merge Defaults/Vars with Input
   ansible.builtin.set_fact:
-    ontap_qtree_object: "{{ ontap_qtree_object | combine(__ontap_qtree_input__, recursive=True) }}"
-  when:
-    - __ontap_qtree_input__ is defined
+    __ontap_qtree_object__: "{{ __ontap_qtree_object__ | default({}) | combine(__ontap_qtree_input__, recursive=True) }}"
 
 - name: Verify Data Sourcing
   fail:
     msg:
       - "Mandatory data could not be sourced:"
-      - "> ontap_qtree_object.svm.name    --> {{ ontap_qtree_object.svm.name }}"
-      - "> ontap_qtree_object.volume.name --> {{ ontap_qtree_object.volume.name }}"
-      - "> ontap_qtree_object.name        --> {{ ontap_qtree_object.name }}"
+      - "> __ontap_qtree_object__.svm.name    --> {{ __ontap_qtree_object__.svm.name }}"
+      - "> __ontap_qtree_object__.volume.name --> {{ __ontap_qtree_object__.volume.name }}"
+      - "> __ontap_qtree_object__.name        --> {{ __ontap_qtree_object__.name }}"
   when:
-    - ontap_qtree_object.svm.name    | default('') == "" or
-      ontap_qtree_object.volume.name | default('') == "" or
-      ontap_qtree_object.name        | default('') == ""
+    - __ontap_qtree_object__.svm.name    | default('') == "" or
+      __ontap_qtree_object__.volume.name | default('') == "" or
+      __ontap_qtree_object__.name        | default('') == ""
   tags:
     - always
 
-##############################################################
-### Initiate Action
-##############################################################
+
+
+################################################################################
+### Initiate role action
+################################################################################
 
 - name: Read Qtree Information into 'ontap_qtree_object'
   include_tasks:      ontap_qtree_info.yml

@@ -15,20 +15,20 @@
     gather_subset:
       - storage/volumes
     parameters:
-      svm.name:                   "{{ ontap_volume_object.svm.name }}"
-      name:                       "{{ ontap_volume_object.name }}"
+      svm.name:                   "{{ __ontap_volume_object__.svm.name }}"
+      name:                       "{{ __ontap_volume_object__.name }}"
     fields:
 # FIXME - List of required fields has to be added for to improve overall efficiency
       - '**'
     <<: *ontap_login
-  register: __ontap_volume_input__
+  register: __ontap_volume_return__
 
 - name: Set ontap_volume_object
   ansible.builtin.set_fact:
-    ontap_volume_object: "{{ __ontap_volume_input__.ontap_info['storage/volumes'].records[0] }}"
+    __ontap_volume_return_clean__: "{{ __ontap_volume_return__.ontap_info['storage/volumes'].records[0] }}"
   when:
-  - __ontap_volume_input__.ontap_info['storage/volumes'].num_records == 1 
+  - __ontap_volume_return__.ontap_info['storage/volumes'].num_records == 1 
 
-- name: Debug ontap_volume_object
+- name: Debug __ontap_volume_return_clean__
   ansible.builtin.debug:
-    msg: "{{ ontap_volume_object }}"
+    msg: "{{ __ontap_volume_return_clean__ }}"

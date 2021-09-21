@@ -13,41 +13,41 @@
 - name: Create Volume (FlexVol)
   na_ontap_volume:
     state:                        present
-    name:                         "{{ ontap_volume_object.name }}"
-    vserver:                      "{{ ontap_volume_object.svm.name }}"
-    comment:                      "{{ ontap_volume_object.comment                        | default(omit) }}"
-    aggregate_name:               "{{ ontap_volume_object.aggregates[0].name             | default(omit) }}"
-    size:                         "{{ ontap_volume_object.size                           | default(omit) }}"
+    name:                         "{{ __ontap_volume_object__.name }}"
+    vserver:                      "{{ __ontap_volume_object__.svm.name }}"
+    comment:                      "{{ __ontap_volume_object__.comment                        | default(omit) }}"
+    aggregate_name:               "{{ __ontap_volume_object__.aggregates[0].name             | default(omit) }}"
+    size:                         "{{ __ontap_volume_object__.size                           | default(omit) }}"
     size_unit:                    "b"
-    space_guarantee:              "{{ ontap_volume_object.guarantee.type                 | default(omit) }}"
-    export_policy:                "{{ ontap_volume_object.nas.export_policy.name         | default(omit) }}"
-    percent_snapshot_space:       "{{ ontap_volume_object.space.snapshot.reserve_percent | default(omit) }}"
-    volume_security_style:        "{{ ontap_volume_object.nas.security_style             | default(omit) }}"
-    type:                         "{{ ontap_volume_object.type                           | default(omit) }}"
+    space_guarantee:              "{{ __ontap_volume_object__.guarantee.type                 | default(omit) }}"
+    export_policy:                "{{ __ontap_volume_object__.nas.export_policy.name         | default(omit) }}"
+    percent_snapshot_space:       "{{ __ontap_volume_object__.space.snapshot.reserve_percent | default(omit) }}"
+    volume_security_style:        "{{ __ontap_volume_object__.nas.security_style             | default(omit) }}"
+    type:                         "{{ __ontap_volume_object__.type                           | default(omit) }}"
     qos_policy_group: 
 # FIXME - Parameter needs to be investigated
     wait_for_completion:          True
     <<: *ontap_login
   when:
-    - ( ontap_volume_object.aggregates | length ) == 1
+    - ( __ontap_volume_object__.aggregates | length ) == 1
 
 # FIXME - Not developed yet
 - name: Create Volume (FlexGroup)
   na_ontap_volume:
     state:                        present
-    name:                         "{{ ontap_volume_object.name }}"
-    vserver:                      "{{ ontap_volume_object.svm.name }}"
+    name:                         "{{ __ontap_volume_object__.name }}"
+    vserver:                      "{{ __ontap_volume_object__.svm.name }}"
     <<: *ontap_login
   when:
-    - ( ontap_volume_object.aggregates | length ) > 1
+    - ( __ontap_volume_object__.aggregates | length ) > 1
     - 0 == 1
 
 - name: Mount RW Volume
   na_ontap_volume:
     state:                        present
-    name:                         "{{ ontap_volume_object.name }}"
-    vserver:                      "{{ ontap_volume_object.svm.name }}"
-    junction_path:                "{{ ontap_volume_object.nas.path                       | default(omit) }}"
+    name:                         "{{ __ontap_volume_object__.name }}"
+    vserver:                      "{{ __ontap_volume_object__.svm.name }}"
+    junction_path:                "{{ __ontap_volume_object__.nas.path                       | default(omit) }}"
     <<: *ontap_login
   when:
-    - ontap_volume_object.type is undefined or ontap_volume_object.type == "rw"
+    - __ontap_volume_object__.type is undefined or __ontap_volume_object__.type == "rw"

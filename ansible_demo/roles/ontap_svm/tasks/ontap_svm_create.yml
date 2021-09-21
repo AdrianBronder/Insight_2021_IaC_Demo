@@ -23,11 +23,11 @@
 - name: Create SVM
   na_ontap_svm:
     state:                        present
-    name:                         "{{ ontap_svm_object.name }}"
-    language:                     "{{ ontap_svm_object.language             | default(omit) }}"
-    comment:                      "{{ ontap_svm_object.comment              | default(omit) }}"
-    ipspace:                      "{{ ontap_svm_object.ipspace.name         | default(omit) }}"
-    snapshot_policy:              "{{ ontap_svm_object.snapshot_policy.name | default(omit) }}"
+    name:                         "{{ __ontap_svm_object__.name }}"
+    language:                     "{{ __ontap_svm_object__.language             | default(omit) }}"
+    comment:                      "{{ __ontap_svm_object__.comment              | default(omit) }}"
+    ipspace:                      "{{ __ontap_svm_object__.ipspace.name         | default(omit) }}"
+    snapshot_policy:              "{{ __ontap_svm_object__.snapshot_policy.name | default(omit) }}"
     <<: *ontap_login
 
 - name: Management IP Interface
@@ -36,7 +36,7 @@
     na_ontap_interface:
       state:                        present
       interface_name:               "{{ item.name }}"
-      vserver:                      "{{ ontap_svm_object.name }}"
+      vserver:                      "{{ __ontap_svm_object__.name }}"
       address:                      "{{ item.ip.address }}"
       netmask:                      "{{ item.ip.netmask }}"
       service_policy:               "{{ item.service_policy.name }}"
@@ -46,35 +46,35 @@
       role:                         "data"
       <<: *ontap_login
     loop:
-      "{{ ontap_svm_object.ip_interfaces | list }}"
+      "{{ __ontap_svm_object__.ip_interfaces | list }}"
     when:
-      - item.name == ontap_ip_interface_name
+      - item.name == __ontap_ip_interface_name__
   when:
-    - ontap_ip_interface_name is defined
+    - not __ontap_ip_interface_name__ | default('') == ""
 
 - name: Configure DNS
   na_ontap_dns:
     state:                        present
-    vserver:                      "{{ ontap_svm_object.name }}"
-    domains:                      "{{ ontap_svm_object.dns.domains             | default(omit) }}"
-    nameservers:                  "{{ ontap_svm_object.dns.servers             | default(omit) }}"
+    vserver:                      "{{ __ontap_svm_object__.name }}"
+    domains:                      "{{ __ontap_svm_object__.dns.domains             | default(omit) }}"
+    nameservers:                  "{{ __ontap_svm_object__.dns.servers             | default(omit) }}"
 #    skip_validation: yes
     <<: *ontap_login
   when:
     - ontap_ip_interface_name is defined
-    - ontap_svm_object.dns.domains[0] is defined
-    - ontap_svm_object.dns.servers[0] is defined
+    - __ontap_svm_object__.dns.domains[0] | default('') == ""
+    - __ontap_svm_object__.dns.servers[0] | default('') == ""
 
 - name: Configure CIFS
   na_ontap_cifs:
     state:                        present
-    vserver:                      "{{ ontap_svm_object.name }}"
-    name:                         "{{ ontap_svm_object.cifs.name }}"
+    vserver:                      "{{ __ontap_svm_object__.name }}"
+    name:                         "{{ __ontap_svm_object__.cifs.name }}"
     service_state:                started
-    domain:                       "{{ ontap_svm_object.cifs.ad_domain.fqdn }}"
+    domain:                       "{{ __ontap_svm_object__.cifs.ad_domain.fqdn }}"
     <<: *ad_login
     <<: *ontap_login
   when:
     - ad_login is defined
-    - not (ontap_svm_object.cifs.name | default('')) == ""
-    - not (ontap_svm_object.cifs.ad_domain.fqdn | default('')) == ""
+    - not (__ontap_svm_object__.cifs.name | default('')) == ""
+    - not (__ontap_svm_object__.cifs.ad_domain.fqdn | default('')) == ""

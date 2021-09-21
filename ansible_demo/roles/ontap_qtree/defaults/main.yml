@@ -16,7 +16,7 @@
 # 
 ################################################################################
 
-ontap_qtree_object:
+__ontap_qtree_object__:
 #  name:
 #  path:
 #  security_style:

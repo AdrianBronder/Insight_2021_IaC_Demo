@@ -1,79 +1,87 @@
 ---
 # tasks file for ontap_svm
-###############################################################
-### Run Pre-steps
-##############################################################
+################################################################################
+#
+# Variables accepted by this role:
+# -------------------------------
+#
+# Mandatory:
+# __ontap_ansiblerole_action__:        create, delete, info
+# __ontap_svm_input__:                 Input object with additional optional
+#                                      parameters to action on
+#                                      (according to SVM data model)
+#                    Mandatory childs: .name - SVM name
+#
+# Optional:
+# __ontap_ip_interface_name__:
+#                                      Management interface for "create" to
+#                                      allow configuration of network services
+# __ontap_source_inventory__:          Source object input from Ansible
+#                                      inventory and host/group vars
+# 
+################################################################################
+
+
+
+################################################################################
+### Run role input validation
+################################################################################
 
 - name: Validate Mandatory Input
   fail:
     msg:
-      - "You must either pass 'ontap_svm_name' 
-        or pass  '__ontap_svm_input__' including child(s): .name"
-      - "- ontap_ip_interface_name is an optional input"
-      - "> ontap_svm_name:           {{ ontap_svm_name | default('') }}"
-      - "> __ontap_svm_input__.name: {{ __ontap_svm_input__.name | default ('') }}"
+      - "You must provide '__ontap_svm_input__' including child(s):
+        .name"
+      - "and '__ontap_ansiblerole_action__'"
+      - "> __ontap_svm_input__.name:     {{ __ontap_svm_input__.name | default ('') }}"
+      - "> __ontap_ansiblerole_action__: {{ __ontap_ansiblerole_action__ | default ('') }}"
   when:
-    - ((ontap_svm_name | default('') == "")
-        and
-       (__ontap_svm_input__.name | default('') == "")
-      )
+    - __ontap_svm_input__.name | default('') == ""
+    - (__ontap_ansiblerole_action__ | default('')) not in ["create", "delete", "info"]
   tags:
     - always
 
-- name: Validate Action
-  fail:
-    msg:
-      - "You must pass the '__ontap_ansiblerole_action__' variable"
-  when:
-    - __ontap_ansiblerole_action__ is undefined
-  tags:
-    - always
 
-- name: Add mandatory Input to SVM object
-  ansible.builtin.set_fact:
-    ontap_svm_object:
-      name:                  "{{ ontap_svm_name }}"
-  when:
-    - not (ontap_svm_name          | default('') == "") or
-      not (ontap_ip_interface_name | default('') == "")
+
+################################################################################
+### Source input parameters into object
+################################################################################
 
 - name: Source Inventory Information
   block:
     - name: Find SVM
       ansible.builtin.set_fact:
-        ontap_svm_object: "{{ svm_item }}"
+        __ontap_svm_object__: "{{ svm_item }}"
       loop:
         "{{ svms | list }}"
       loop_control:
         label:    "{{ svm_item.name }}"
         loop_var: svm_item
       when:
-        - svm_item.name == ontap_svm_object.name
+        - svm_item.name == __ontap_svm_input__.name
   when:
-    - __source_inventory__ is defined
-    - __source_inventory__
+    - __ontap_source_inventory__ is defined
+    - __ontap_source_inventory__
 
 - name: Merge Defaults/Vars with Input
   ansible.builtin.set_fact:
-    ontap_svm_object: "{{ ontap_svm_object | combine(__ontap_svm_input__, recursive=True) }}"
-  when:
-    - __ontap_svm_input__ is defined
+    __ontap_svm_object__: "{{ __ontap_svm_object__ | default({}) | combine(__ontap_svm_input__, recursive=True) }}"
 
 - name: Verify Data Sourcing
   fail:
     msg:
       - "Mandatory data could not be sourced:"
-      - "> ontap_svm_object.name --> {{ ontap_svm_object.name }}"
+      - "> __ontap_svm_object__.name --> {{ __ontap_svm_object__.name }}"
   when:
-    - ontap_svm_object.name | default('') == ""
+    - __ontap_svm_object__.name | default('') == ""
   tags:
     - always
 
 
 
-##############################################################
-### Initiate Action
-##############################################################
+################################################################################
+### Initiate role action
+################################################################################
 
 - name: Read SVM Information into 'ontap_volume_object'
   include_tasks:      ontap_svm_info.yml

@@ -1,9 +1,17 @@
 ---
-- hosts:        "{{ ontap_cluster_name }}"
+################################################################################
+# Description:
+# -----------
+# - Creating a single volume 
+# - Taking 'ontap_volume_input' with additional optional parameters
+#   or sourcing volume state from the inventory by taking 
+#   ontap_volume_input.name and 'source_inventory=true'
+################################################################################
+- hosts:                          "{{ ontap_cluster_name }}"
   gather_facts: false
   vars:
     ontap_ansiblerole_action:     "create"
-  
+
   tasks:
   - name: Create Volume
     include_role:
@@ -11,3 +19,5 @@
     vars:
       __ontap_ansiblerole_action__:
                                   "{{ ontap_ansiblerole_action }}"
+      __ontap_source_inventory__: "{{ source_inventory | default(false) }}"
+      __ontap_volume_input__:     "{{ ontap_volume_input }}"

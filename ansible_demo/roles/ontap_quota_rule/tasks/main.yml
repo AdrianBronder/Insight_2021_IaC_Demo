@@ -1,72 +1,76 @@
 ---
 # tasks file for ontap_quota_rule
-##############################################################
-### Run Pre-steps
-##############################################################
+################################################################################
+#
+# Variables accepted by this role:
+# -------------------------------
+#
+# Mandatory:
+# __ontap_ansiblerole_action__:        create, delete, info
+# __ontap_quota_rule_input__:          Input object with additional optional
+#                                      parameters to action on
+#                                      (according to SVM data model)
+#                    Mandatory childs: .type        - Quota type
+#                                      .volume.name - Associated volume
+#                                      .svm.name    - Owning SVM
+#
+# Optional:
+# __ontap_source_inventory__:          Source object input from Ansible
+#                                      inventory and host/group vars
+# 
+################################################################################
+
+
+
+################################################################################
+### Run role input validation
+################################################################################
 
 - name: Validate Mandatory Input
   fail:
     msg:
 # FIXME: Elegant solution required for checking input depending on quota type...
-      - "You must either pass 'ontap_quota_rule_type', 'ontap_volume_name' and 'ontap_svm_name' 
-        or '__ontap_quota_rule_input__' including child(s): .type, .volume.name, .svm.name"
-      - "> ontap_svm_name:                         {{ ontap_svm_name | default('') }}"
-      - "> ontap_volume_name:                      {{ ontap_volume_name | default('') }}"
-      - "> ontap_quota_rule_type:                  {{ ontap_quota_rule_type | default('') }}"
+      - "You must provide '__ontap_quota_rule_input__' including child(s):
+        .type, .volume.name, .svm.name"
+      - "and '__ontap_ansiblerole_action__'"
       - "> __ontap_quota_rule_input__.svm.name:    {{ __ontap_quota_input__.svm.name | default ('') }}"
       - "> __ontap_quota_rule_input__.volume.name: {{ __ontap_quota_input__.volume.name | default ('') }}"
       - "> __ontap_quota_rule_input__.type:        {{ __ontap_quota_input__.type | default ('') }}"
+      - "> __ontap_ansiblerole_action__:           {{ __ontap_ansiblerole_action__ | default ('') }}"
   when:
-    - ((ontap_svm_name         | default('') == "" or
-        ontap_volume_name      | default('') == "" or
-        ontap_quota_rule_type  | default('') ==""
-        ) and
-       (__ontap_quota_rule_input__.svm.name    | default('') == "" or
-        __ontap_quota_rule_input__.volume.name | default('') == "" or
-        __ontap_quota_rule_input__.type        | default('') == ""
+    - (__ontap_quota_rule_input__.svm.name     | default('') == "" or
+       __ontap_quota_rule_input__.volume.name  | default('') == "" or
+       __ontap_quota_rule_input__.type         | default('') ==""
+       )
+    - (__ontap_ansiblerole_action__ | default('')) not in ["create", "delete", "info"]
         ))
   tags:
     - always
 
-# FIXME: Adding parameters based on on quota type...
-- name: Add mandatory Input to Quota Rule object
-  ansible.builtin.set_fact:
-    ontap_quota_rule_object:
-      svm:
-        name:                "{{ ontap_svm_name }}"
-      volume:
-        name:                "{{ ontap_volume_name }}"
-      type:                  "{{ ontap_quota_rule_type }}"
-  when:
-    - not (ontap_quota_rule_type | default('') == "")
 
-- name: Validate Action
-  fail:
-    msg:
-      - "You must pass the '__ontap_ansiblerole_action__' variable"
-  when:
-    - __ontap_ansiblerole_action__ is undefined
-  tags:
-    - always
+
+################################################################################
+### Source input parameters into object
+################################################################################
 
 - name: Source Inventory Information
   block:
     - name: Find SVM
       ansible.builtin.set_fact:
-        ontap_svm_object: "{{ svm_item }}"
+        __ontap_svm_object__: "{{ svm_item }}"
       loop:
         "{{ svms | list }}"
       loop_control:
         label:    "{{ svm_item.name }}"
         loop_var: svm_item
       when:
-        - svm_item.name == ontap_svm_name
+        - svm_item.name == __ontap_quota_rule_input__.svm.name
 # FIXME - Policy is always "default". ONTAP REST currently does not allow managing custom quota policies
     - name: Find Quota Policy
       ansible.builtin.set_fact:
-        ontap_quota_policy_object: "{{ quota_policy_item }}"
+        __ontap_quota_policy_object__: "{{ quota_policy_item }}"
       loop:
-        "{{ ontap_svm_object.quota_policies | list }}"
+        "{{ __ontap_svm_object__.quota_policies | list }}"
       loop_control:
         label:    "{{ quota_policy_item.name }}"
         loop_var: quota_policy_item
@@ -75,18 +79,18 @@
 # FIXME - Not sure how to fix... There is simply no descriptive identifier, that you can set (ID or Name)
     - name: Find Quota Rule
       ansible.builtin.set_fact:
-        ontap_quota_rule_object: "{{ quota_rule_item }}"
+        __ontap_quota_rule_object__: "{{ quota_rule_item }}"
       loop:
         "{{ ontap_quota_policy_object.quota_rules | list }}"
       loop_control:
         label:    "{{ quota_rule_item }}"
         loop_var: quota_rule_item
       when:
-        - quota_rule_item.volume.name == ontap_volume_name
-        - quota_rule_item.type == ontap_quota_rule_type
-        - quota_rule_item.qtree | default('') == ontap_quota_rule_qtree | default('')
-        - quota_rule_item.users | default('') == ontap_quota_rule_users | default('')
-        - quota_rule_item.group | default('') == ontap_quota_rule_group | default('')
+        - quota_rule_item.volume.name         == __ontap_quota_rule_input__.volume.nae
+        - quota_rule_item.type                == __ontap_quota_rule_input__.type
+        - quota_rule_item.qtree | default('') == __ontap_quota_rule_input__.qtree | default('')
+        - quota_rule_item.users | default('') == __ontap_quota_rule_input__.users | default('')
+        - quota_rule_item.group | default('') == __ontap_quota_rule_input__.group | default('')
   when:
     - __source_inventory__ is defined
     - __source_inventory__
@@ -95,27 +99,27 @@
   block:
     - name: Merge Defaults/Vars with Input
       ansible.builtin.set_fact:
-        ontap_quota_rule_object: "{{ ontap_quota_rule_object | combine(__ontap_quota_rule_input__, recursive=True) }}"
-  when:
-    - __ontap_quota_rule_input__ is defined
+        __ontap_quota_rule_object__: "{{ __ontap_quota_rule_object__ | default({}) | combine(__ontap_quota_rule_input__, recursive=True) }}"
 
 - name: Verify Data Sourcing
   fail:
     msg:
       - "Mandatory data could not be sourced:"
-      - "> ontap_quota_rule_object.svm.name    --> {{ ontap_quota_rule_object.svm.name }}"
-      - "> ontap_quota_rule_object.volume.name --> {{ ontap_quota_rule_object.volume.name }}"
-      - "> ontap_quota_rule_object.type        --> {{ ontap_quota_rule_object.type }}"
+      - "> __ontap_quota_rule_object__.svm.name    --> {{ __ontap_quota_rule_object__.svm.name }}"
+      - "> __ontap_quota_rule_object__.volume.name --> {{ __ontap_quota_rule_object__.volume.name }}"
+      - "> __ontap_quota_rule_object__.type        --> {{ __ontap_quota_rule_object__.type }}"
   when:
-    - ontap_quota_rule_object.svm.name    | default('') == "" or
-      ontap_quota_rule_object.volume.name | default('') == "" or
-      ontap_quota_rule_object.type        | default('') == ""
+    - __ontap_quota_rule_object__.svm.name    | default('') == "" or
+      __ontap_quota_rule_object__.volume.name | default('') == "" or
+      __ontap_quota_rule_object__.type        | default('') == ""
   tags:
     - always
 
-##############################################################
-### Initiate Action
-##############################################################
+
+
+################################################################################
+### Initiate role action
+################################################################################
 
 - name: Read Quota Information into 'ontap_quota_rule_object'
   include_tasks:      ontap_quota_rule_info.yml
