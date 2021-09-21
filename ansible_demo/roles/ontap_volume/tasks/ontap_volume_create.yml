@@ -25,7 +25,8 @@
     volume_security_style:        "{{ __ontap_volume_object__.nas.security_style             | default(omit) }}"
     type:                         "{{ __ontap_volume_object__.type                           | default(omit) }}"
     qos_policy_group: 
-# FIXME - Parameter needs to be investigated
+# FIXME - Parameters needs to be investigated
+    size_change_threshold:        0
     wait_for_completion:          True
     <<: *ontap_login
   when:
