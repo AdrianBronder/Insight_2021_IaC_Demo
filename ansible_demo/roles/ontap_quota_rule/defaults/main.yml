@@ -17,8 +17,8 @@
 ################################################################################
 
 __ontap_quota_rule_object__:
-#  volume:
-#    name:
+  volume:
+    name:
 #  files:
 #    hard_limit:
 #    soft_limit:

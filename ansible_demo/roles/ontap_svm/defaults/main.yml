@@ -17,6 +17,7 @@
 ################################################################################
 
 __ontap_svm_object__:
+  name:
 #  dns:
 #    domains: []
 #    servers: []
@@ -92,7 +93,6 @@ __ontap_svm_object__:
 #    bind_dn:
 #    ad_domain:
 #    enabled:
-#  name:
 #  nvme:
 #    enabled:
 #  nsswitch:
