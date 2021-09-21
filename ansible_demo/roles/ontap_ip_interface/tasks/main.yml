@@ -76,7 +76,7 @@
 
 - name: Merge Defaults/Vars with Input
   ansible.builtin.set_fact:
-    __ontap_ip_interface_object__: "{{ __ontap_ip_interface_object__ | default('{}') | combine(__ontap_ip_interface_input__, recursive=True) }}"
+    __ontap_ip_interface_object__: "{{ (__ontap_ip_interface_object__ | default({})) | combine(__ontap_ip_interface_input__, recursive=True) }}"
   when:
     - __ontap_ip_interface_input__ is defined
 
