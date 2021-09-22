@@ -67,7 +67,7 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:
+#        comment:
         aggregates:
           - name:                 aggr1_cluster1_01
             uuid:
@@ -181,7 +181,7 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:
+#        comment:
         aggregates:
           - name:                 aggr1_cluster1_01
             uuid:
@@ -295,7 +295,7 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:          
+#        comment:          
         aggregates:       
           - name:                 aggr1_cluster1_01
             uuid:
@@ -519,7 +519,7 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:
+#        comment:
         aggregates:
           - name:                 aggr1_cluster1_02
             uuid:
@@ -633,7 +633,7 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:
+#        comment:
         aggregates:
           - name:                 aggr1_cluster1_02
             uuid:
@@ -747,7 +747,7 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:          
+#        comment:          
         aggregates:       
           - name:                 aggr1_cluster1_02
             uuid:
@@ -987,7 +987,7 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:
+#        comment:
         aggregates:
           - name:                 aggr1_cluster1_01
             uuid:
@@ -1040,7 +1040,7 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:
+#        comment:
         aggregates:
           - name:                 aggr1_cluster1_01
             uuid:
@@ -1093,7 +1093,7 @@ svms:
         type:                     rw
         size:                     10737418240
         style:                    flexvol
-        comment:
+#        comment:
         aggregates:
           - name:                 aggr1_cluster1_01
             uuid:
