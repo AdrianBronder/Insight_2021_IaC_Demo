@@ -9,5 +9,4 @@ ntp_servers:
   -
 nodes:
   -
-svms:
-  - 
+svms: []
