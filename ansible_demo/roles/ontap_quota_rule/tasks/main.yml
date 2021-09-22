@@ -93,7 +93,7 @@
         - quota_rule_item.group | default('') == __ontap_quota_rule_input__.group | default('')
   when:
     - __source_inventory__ is defined
-    - __source_inventory__
+    - __ontap_source_inventory__ | bool
 
 - name: Source Template Information
   block:
